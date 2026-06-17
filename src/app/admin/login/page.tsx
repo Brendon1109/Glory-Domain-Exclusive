@@ -32,18 +32,20 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center bg-stone-100 px-6 py-12 text-center">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-700 text-white">
-        <ShieldCheck className="h-8 w-8" />
+    <main className="flex min-h-dvh flex-col items-center justify-center bg-paper px-6 py-12 text-center">
+      <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-ink text-paper">
+        <ShieldCheck className="h-7 w-7" strokeWidth={1.7} />
       </div>
-      <h1 className="text-xl font-bold text-stone-900">Pastor Admin</h1>
-      <p className="mt-2 max-w-xs text-sm text-stone-500">
+      <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
+        Pastor Admin
+      </h1>
+      <p className="mt-2 max-w-xs text-sm text-muted">
         Sign in to schedule teachings, post worship and answer prayer requests.
       </p>
 
       <form
         onSubmit={submit}
-        className="mt-8 w-full max-w-sm rounded-2xl bg-white p-6 text-left shadow-md"
+        className="mt-8 w-full max-w-sm rounded-2xl border border-line bg-surface p-6 text-left shadow-sm"
       >
         <Label htmlFor="password">Admin password</Label>
         <Input
@@ -56,14 +58,14 @@ export default function AdminLoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter admin password"
         />
-        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+        {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
         <Button
           type="submit"
           size="lg"
           className="mt-4 w-full"
           disabled={loading || password.length === 0}
         >
-          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           Sign in
         </Button>
       </form>

@@ -16,6 +16,7 @@ type Hit = {
 const TRANS = [
   { id: "kjv", name: "KJV" },
   { id: "web", name: "WEB" },
+  { id: "shona", name: "Shona" },
 ];
 
 export default function BibleSearchPage() {
@@ -38,7 +39,9 @@ export default function BibleSearchPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold text-stone-900">Search the Bible</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
+        Search the Bible
+      </h1>
       <form onSubmit={run} className="space-y-2">
         <div className="flex gap-2">
           <Input
@@ -62,7 +65,7 @@ export default function BibleSearchPage() {
               onClick={() => setT(x.id)}
               className={cn(
                 "rounded-md px-3 py-1 text-xs font-semibold transition-colors",
-                t === x.id ? "bg-white text-indigo-700 shadow-sm" : "text-stone-500",
+                t === x.id ? "bg-surface text-ink shadow-sm" : "text-faint",
               )}
             >
               {x.name}
@@ -72,7 +75,7 @@ export default function BibleSearchPage() {
       </form>
 
       {hits ? (
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-muted">
           {hits.length} result{hits.length !== 1 ? "s" : ""}
           {hits.length >= 100 ? "+" : ""}
         </p>
@@ -83,20 +86,21 @@ export default function BibleSearchPage() {
           <Link
             key={i}
             href={`/bible/${h.bookId}/${h.chapter}`}
-            className="block rounded-xl border border-stone-200 bg-white p-3 transition-colors hover:bg-stone-50"
+            className="block rounded-xl border border-line bg-surface p-3 transition-colors hover:bg-stone-50"
           >
-            <p className="text-xs font-semibold text-indigo-700">
+            <p className="text-xs font-semibold uppercase tracking-wide text-accent">
               {h.bookName} {h.chapter}:{h.verse}
             </p>
-            <p className="mt-0.5 text-sm text-stone-700">{h.text}</p>
+            <p className="mt-0.5 font-display text-[0.95rem] text-ink">
+              {h.text}
+            </p>
           </Link>
         ))}
       </div>
 
       {hits && hits.length === 0 ? (
-        <p className="text-sm text-stone-500">
-          No matches found. (Only the preview chapters are searchable until the
-          full Bible is imported.)
+        <p className="text-sm text-muted">
+          No matches found. (The Shona text covers the New Testament only.)
         </p>
       ) : null}
     </div>

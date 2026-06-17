@@ -2,9 +2,14 @@ import Link from "next/link";
 import { BookOpen, Video, Heart, type LucideIcon } from "lucide-react";
 import { getSettings } from "@/lib/settings";
 import { getDailyVerse } from "@/lib/daily-verse";
-import { getNextTeaching, getWorshipItems } from "@/lib/queries";
+import {
+  getNextTeaching,
+  getWorshipItems,
+  getLatestDailyWord,
+} from "@/lib/queries";
 import { pickForDay } from "@/lib/daily";
 import { DailyVerseCard } from "@/components/daily-verse-card";
+import { DailyWordCard } from "@/components/daily-word-card";
 import { TeachingCard } from "@/components/teaching-card";
 import { WhatsappButtons } from "@/components/whatsapp-buttons";
 import { WorshipCard } from "@/components/worship-card";
@@ -14,23 +19,26 @@ export default async function HomePage() {
   const settings = await getSettings();
   const today = new Date();
   const verse = getDailyVerse(today, settings);
-  const [next, worship] = await Promise.all([
+  const [next, worship, word] = await Promise.all([
     getNextTeaching(),
     getWorshipItems(),
+    getLatestDailyWord(),
   ]);
   const todaysWorship = pickForDay(worship, today, 1)[0] ?? null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <DailyVerseCard verse={verse} />
 
+      {word ? <DailyWordCard word={word} /> : null}
+
       <section>
-        <SectionTitle>Next teaching</SectionTitle>
+        <h2 className="eyebrow mb-2.5">Next teaching</h2>
         {next ? (
           <TeachingCard teaching={next} context="upcoming" />
         ) : (
           <Card>
-            <CardContent className="text-sm text-stone-500">
+            <CardContent className="text-sm text-muted">
               No teaching is scheduled yet. Check back soon — or watch a past
               teaching in the library.
             </CardContent>
@@ -46,33 +54,25 @@ export default async function HomePage() {
 
       {todaysWorship ? (
         <section>
-          <SectionTitle>Today&apos;s worship</SectionTitle>
+          <h2 className="eyebrow mb-2.5">Today&apos;s worship</h2>
           <WorshipCard item={todaysWorship} />
           <Link
             href="/worship"
-            className="mt-2 inline-block text-sm font-medium text-indigo-700"
+            className="mt-3 inline-block text-sm font-medium text-ink underline decoration-line underline-offset-4"
           >
-            More praise &amp; worship →
+            More praise &amp; worship
           </Link>
         </section>
       ) : null}
 
       <section>
-        <SectionTitle>Stay connected</SectionTitle>
+        <h2 className="eyebrow mb-2.5">Stay connected</h2>
         <WhatsappButtons
           chatUrl={settings.whatsappChatUrl}
           groupUrl={settings.whatsappGroupUrl}
         />
       </section>
     </div>
-  );
-}
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-stone-500">
-      {children}
-    </h2>
   );
 }
 
@@ -88,10 +88,10 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="flex flex-col items-center gap-2 rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm transition-colors hover:bg-stone-50"
+      className="flex flex-col items-center gap-2 rounded-xl border border-line bg-surface p-4 text-center transition-colors hover:bg-stone-50"
     >
-      <Icon className="h-6 w-6 text-indigo-700" />
-      <span className="text-sm font-medium text-stone-700">{label}</span>
+      <Icon className="h-6 w-6 text-accent" strokeWidth={1.7} />
+      <span className="text-sm font-medium text-ink">{label}</span>
     </Link>
   );
 }

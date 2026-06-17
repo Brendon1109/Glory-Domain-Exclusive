@@ -14,10 +14,12 @@ const BOOK_IDS = [
   "2PE", "1JN", "2JN", "3JN", "JUD", "REV",
 ];
 
-// Public-domain translations from the getBible v2 dataset.
+// Freely-licensed translations from the getBible v2 dataset.
+//   kjv/web: public domain · shona: GFDL (Shona Bible)
 const SOURCES = {
   kjv: "https://api.getbible.net/v2/kjv.json",
   web: "https://api.getbible.net/v2/web.json",
+  shona: "https://api.getbible.net/v2/shona.json",
 };
 
 function asArray(maybe) {
@@ -32,7 +34,10 @@ async function build(id, url) {
 
   const booksOut = {};
   asArray(data.books).forEach((book, i) => {
-    const bid = BOOK_IDS[i];
+    // Map by canonical book number (nr) so partial canons (e.g. a NT-only
+    // translation) land in the correct books rather than by array position.
+    const nr = Number(book.nr ?? i + 1);
+    const bid = BOOK_IDS[nr - 1];
     if (!bid) return;
     const chapters = {};
     for (const ch of asArray(book.chapters)) {

@@ -9,8 +9,10 @@ export default async function PrayerPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-bold text-stone-900">Prayer wall</h1>
-        <p className="text-sm text-stone-500">
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
+          Prayer wall
+        </h1>
+        <p className="mt-1 text-sm text-muted">
           Share a request — our pastor and church family will pray with you.
         </p>
       </div>
@@ -20,7 +22,7 @@ export default async function PrayerPage() {
       <div className="space-y-3">
         {requests.length === 0 ? (
           <Card>
-            <CardContent className="text-sm text-stone-500">
+            <CardContent className="text-sm text-muted">
               No prayer requests yet. Be the first to share.
             </CardContent>
           </Card>
@@ -28,20 +30,16 @@ export default async function PrayerPage() {
           requests.map((r) => (
             <Card key={r.id} className="p-4">
               <div className="mb-1 flex items-center justify-between gap-2">
-                <span className="text-sm font-semibold text-stone-800">
-                  {r.name}
-                </span>
+                <span className="text-sm font-semibold text-ink">{r.name}</span>
                 {r.status === "praying" ? (
-                  <Badge tone="amber">🙏 Praying</Badge>
+                  <Badge tone="amber">Praying</Badge>
                 ) : null}
                 {r.status === "answered" ? (
-                  <Badge tone="green">✓ Answered</Badge>
+                  <Badge tone="green">Answered</Badge>
                 ) : null}
               </div>
-              <p className="whitespace-pre-wrap text-sm text-stone-700">
-                {r.body}
-              </p>
-              <p className="mt-2 text-xs text-stone-400">
+              <p className="whitespace-pre-wrap text-sm text-ink/90">{r.body}</p>
+              <p className="mt-2 text-xs text-faint">
                 <LocalDateTime iso={new Date(r.createdAt).toISOString()} />
               </p>
             </Card>

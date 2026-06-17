@@ -35,6 +35,14 @@ export const prayerRequests = pgTable("prayer_requests", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** A short text teaching / devotional the pastor posts; the latest shows to all members. */
+export const dailyWords = pgTable("daily_words", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title"),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const worshipItems = pgTable("worship_items", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
@@ -63,6 +71,7 @@ export const settings = pgTable("settings", {
 
 export type Teaching = typeof teachings.$inferSelect;
 export type NewTeaching = typeof teachings.$inferInsert;
+export type DailyWord = typeof dailyWords.$inferSelect;
 export type PrayerRequest = typeof prayerRequests.$inferSelect;
 export type WorshipItem = typeof worshipItems.$inferSelect;
 export type Settings = typeof settings.$inferSelect;

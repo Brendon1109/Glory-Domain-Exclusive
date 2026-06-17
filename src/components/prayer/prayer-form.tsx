@@ -54,7 +54,7 @@ export function PrayerForm() {
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
           {done ? (
             <p className="text-sm text-green-700">
-              Thank you — your request has been shared. 🙏
+              Thank you — your request has been shared with the church family.
             </p>
           ) : null}
           <Button type="submit" disabled={pending} className="w-full">

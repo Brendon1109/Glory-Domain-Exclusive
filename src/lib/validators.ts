@@ -42,6 +42,11 @@ export const settingsSchema = z.object({
   dailyVerseOverrideDate: z.string().trim().optional(),
 });
 
+export const dailyWordSchema = z.object({
+  title: z.string().trim().max(160).optional(),
+  body: z.string().trim().min(3, "Please write the teaching").max(8000),
+});
+
 export const passcodeSchema = z.object({
   newPasscode: z.string().trim().min(4, "Use at least 4 characters").max(60),
 });

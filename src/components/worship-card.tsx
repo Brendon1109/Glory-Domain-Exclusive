@@ -38,8 +38,8 @@ export function WorshipCard({ item }: { item: WorshipItem }) {
           className="absolute inset-0 h-full w-full object-cover opacity-90"
         />
       ) : (
-        <span className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-700 to-violet-800">
-          <Music className="h-10 w-10 text-white/70" />
+        <span className="absolute inset-0 flex items-center justify-center bg-ink">
+          <Music className="h-10 w-10 text-accent/80" />
         </span>
       )}
       <span className="absolute inset-0 flex items-center justify-center">

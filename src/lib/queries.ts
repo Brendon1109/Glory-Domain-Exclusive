@@ -1,7 +1,12 @@
 import "server-only";
 import { and, asc, desc, eq, gte, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
-import { teachings, prayerRequests, worshipItems } from "@/db/schema";
+import {
+  teachings,
+  prayerRequests,
+  worshipItems,
+  dailyWords,
+} from "@/db/schema";
 
 const LIVE_GRACE_MS = 2 * 60 * 60 * 1000; // keep a just-started teaching visible
 
@@ -52,4 +57,21 @@ export async function getPrayerRequests() {
     .select()
     .from(prayerRequests)
     .orderBy(desc(prayerRequests.createdAt));
+}
+
+export async function getLatestDailyWord() {
+  const rows = await db
+    .select()
+    .from(dailyWords)
+    .orderBy(desc(dailyWords.createdAt))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function getDailyWords(limit = 30) {
+  return db
+    .select()
+    .from(dailyWords)
+    .orderBy(desc(dailyWords.createdAt))
+    .limit(limit);
 }

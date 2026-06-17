@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/admin", label: "Home" },
+  { href: "/admin/word", label: "Word" },
   { href: "/admin/teachings", label: "Teachings" },
   { href: "/admin/prayer", label: "Prayer" },
   { href: "/admin/worship", label: "Worship" },
@@ -25,9 +26,11 @@ export function AdminNav() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="font-bold text-stone-900">Pastor Admin</span>
+        <span className="font-display text-lg font-semibold text-ink">
+          Pastor Admin
+        </span>
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm font-medium text-indigo-700">
+          <Link href="/" className="text-sm font-medium text-ink underline decoration-line underline-offset-4">
             View app
           </Link>
           <button
@@ -52,7 +55,7 @@ export function AdminNav() {
               className={cn(
                 "whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
                 active
-                  ? "bg-indigo-700 text-white"
+                  ? "bg-ink text-paper"
                   : "bg-stone-100 text-stone-600 hover:bg-stone-200",
               )}
             >

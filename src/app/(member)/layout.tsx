@@ -20,13 +20,16 @@ export default async function MemberLayout({
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-lg flex-col">
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stone-200 bg-[var(--background)]/90 px-4 py-3 backdrop-blur">
-        <Link href="/" className="font-semibold tracking-tight text-stone-900">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-paper/85 px-4 py-3.5 backdrop-blur">
+        <Link
+          href="/"
+          className="font-display text-lg font-semibold tracking-tight text-ink"
+        >
           {name}
         </Link>
         <Link
           href="/admin"
-          className="text-stone-400 transition-colors hover:text-stone-700"
+          className="text-faint transition-colors hover:text-ink"
           aria-label="Admin"
         >
           <Cog className="h-5 w-5" />

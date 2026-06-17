@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { CalendarPlus, Heart, Music, Settings, ArrowRight } from "lucide-react";
+import {
+  PenLine,
+  CalendarPlus,
+  Heart,
+  Music,
+  Settings,
+  ArrowRight,
+} from "lucide-react";
 import {
   getUpcomingTeachings,
   getRecordedTeachings,
@@ -18,8 +25,10 @@ export default async function AdminDashboard() {
   const openPrayers = prayers.filter((p) => p.status !== "answered").length;
 
   return (
-    <div className="space-y-5">
-      <h1 className="text-xl font-bold text-stone-900">Dashboard</h1>
+    <div className="space-y-6">
+      <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
+        Dashboard
+      </h1>
 
       <div className="grid grid-cols-2 gap-3">
         <Stat label="Upcoming teachings" value={upcoming.length} />
@@ -29,6 +38,7 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="space-y-2">
+        <AdminLink href="/admin/word" icon={PenLine} label="Post the daily word (teaching)" />
         <AdminLink href="/admin/teachings" icon={CalendarPlus} label="Schedule a teaching or add a recording" />
         <AdminLink href="/admin/prayer" icon={Heart} label="Answer prayer requests" />
         <AdminLink href="/admin/worship" icon={Music} label="Manage praise & worship" />
@@ -42,8 +52,8 @@ function Stat({ label, value }: { label: string; value: number }) {
   return (
     <Card>
       <CardContent className="p-4">
-        <p className="text-3xl font-bold text-indigo-700">{value}</p>
-        <p className="text-xs text-stone-500">{label}</p>
+        <p className="font-display text-3xl font-semibold text-ink">{value}</p>
+        <p className="text-xs text-muted">{label}</p>
       </CardContent>
     </Card>
   );
@@ -55,17 +65,17 @@ function AdminLink({
   label,
 }: {
   href: string;
-  icon: typeof CalendarPlus;
+  icon: typeof PenLine;
   label: string;
 }) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-4 transition-colors hover:bg-stone-50"
+      className="flex items-center gap-3 rounded-xl border border-line bg-surface p-4 transition-colors hover:bg-stone-50"
     >
-      <Icon className="h-5 w-5 shrink-0 text-indigo-700" />
-      <span className="flex-1 text-sm font-medium text-stone-800">{label}</span>
-      <ArrowRight className="h-4 w-4 text-stone-400" />
+      <Icon className="h-5 w-5 shrink-0 text-accent" strokeWidth={1.8} />
+      <span className="flex-1 text-sm font-medium text-ink">{label}</span>
+      <ArrowRight className="h-4 w-4 text-faint" />
     </Link>
   );
 }

@@ -9,6 +9,7 @@ type Verse = { n: number; t: string };
 const TRANS = [
   { id: "kjv", name: "KJV" },
   { id: "web", name: "WEB" },
+  { id: "shona", name: "Shona" },
 ];
 
 export function ChapterReader({
@@ -27,7 +28,9 @@ export function ChapterReader({
 
   useEffect(() => {
     const saved = localStorage.getItem("gd_translation");
-    if (saved === "kjv" || saved === "web") setTranslation(saved);
+    if (saved === "kjv" || saved === "web" || saved === "shona") {
+      setTranslation(saved);
+    }
   }, []);
 
   useEffect(() => {
@@ -75,12 +78,9 @@ export function ChapterReader({
         : null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex items-center justify-between gap-2">
-        <Link
-          href="/bible"
-          className="text-sm text-stone-500 hover:text-stone-800"
-        >
+        <Link href="/bible" className="text-sm text-muted hover:text-ink">
           All books
         </Link>
         <div className="flex rounded-lg bg-stone-100 p-0.5">
@@ -92,8 +92,8 @@ export function ChapterReader({
               className={cn(
                 "rounded-md px-3 py-1 text-xs font-semibold transition-colors",
                 translation === t.id
-                  ? "bg-white text-indigo-700 shadow-sm"
-                  : "text-stone-500",
+                  ? "bg-surface text-ink shadow-sm"
+                  : "text-faint",
               )}
             >
               {t.name}
@@ -102,21 +102,21 @@ export function ChapterReader({
         </div>
       </div>
 
-      <h1 className="text-2xl font-bold text-stone-900">
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">
         {meta.name} {chapter}
       </h1>
 
       {state === "loading" ? (
-        <div className="flex justify-center py-12 text-stone-400">
+        <div className="flex justify-center py-12 text-faint">
           <Loader2 className="h-6 w-6 animate-spin" />
         </div>
       ) : null}
 
       {state === "ok" && verses ? (
-        <div className="space-y-2 text-[1.05rem] leading-relaxed text-stone-800">
+        <div className="space-y-3 font-display text-[1.15rem] leading-relaxed text-ink">
           {verses.map((v) => (
             <p key={v.n}>
-              <sup className="mr-1 align-super text-xs font-bold text-indigo-600">
+              <sup className="mr-1 align-super text-xs font-bold text-accent">
                 {v.n}
               </sup>
               {v.t}
@@ -126,25 +126,25 @@ export function ChapterReader({
       ) : null}
 
       {state === "unavailable" ? (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-          This chapter isn&apos;t loaded yet. The full Bible is added with the
-          one-time import (<code className="font-mono">npm run bible:fetch</code>
-          ). Psalm 23 and Psalm 117 are available in this preview.
+        <div className="rounded-xl border border-line bg-accent-soft/50 p-4 text-sm text-muted">
+          This chapter isn&apos;t in this translation. The Shona text covers the
+          New Testament (Matthew–Revelation) — switch to KJV or WEB for the Old
+          Testament.
         </div>
       ) : null}
 
       {state === "error" ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           Couldn&apos;t load this chapter. Please check your connection and try
           again.
         </div>
       ) : null}
 
-      <div className="flex items-center justify-between border-t border-stone-200 pt-3">
+      <div className="flex items-center justify-between border-t border-line pt-4">
         {prev ? (
           <Link
             href={prev}
-            className="inline-flex items-center text-sm font-medium text-indigo-700"
+            className="inline-flex items-center text-sm font-medium text-ink"
           >
             <ChevronLeft className="h-4 w-4" /> Previous
           </Link>
@@ -154,7 +154,7 @@ export function ChapterReader({
         {next ? (
           <Link
             href={next}
-            className="inline-flex items-center text-sm font-medium text-indigo-700"
+            className="inline-flex items-center text-sm font-medium text-ink"
           >
             Next <ChevronRight className="h-4 w-4" />
           </Link>

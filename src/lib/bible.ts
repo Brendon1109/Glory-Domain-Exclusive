@@ -6,6 +6,7 @@ import { getBook } from "./bible-books";
 export const TRANSLATIONS = [
   { id: "kjv", name: "KJV", full: "King James Version" },
   { id: "web", name: "WEB", full: "World English Bible" },
+  { id: "shona", name: "Shona", full: "Shona Bible (New Testament)" },
 ] as const;
 
 export type TranslationId = (typeof TRANSLATIONS)[number]["id"];

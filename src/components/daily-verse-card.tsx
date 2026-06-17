@@ -1,5 +1,3 @@
-import { Sparkles } from "lucide-react";
-
 export function DailyVerseCard({
   verse,
   label = "Verse of the day",
@@ -8,15 +6,19 @@ export function DailyVerseCard({
   label?: string;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-700 to-violet-800 p-5 text-white shadow-md">
-      <div className="mb-2 flex items-center gap-2 text-amber-300">
-        <Sparkles className="h-4 w-4" />
-        <span className="text-xs font-semibold uppercase tracking-wide">
-          {label}
-        </span>
+    <div className="overflow-hidden rounded-xl bg-ink p-6 text-paper">
+      <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-accent">
+        {label}
+      </p>
+      <p className="mt-3 font-display text-xl leading-relaxed">
+        &ldquo;{verse.text}&rdquo;
+      </p>
+      <div className="mt-4 flex items-center gap-3">
+        <span className="h-px w-6 bg-accent/70" />
+        <p className="text-sm font-medium tracking-wide text-paper/70">
+          {verse.ref}
+        </p>
       </div>
-      <p className="text-lg leading-relaxed">&ldquo;{verse.text}&rdquo;</p>
-      <p className="mt-3 text-sm font-medium text-indigo-100">{verse.ref}</p>
     </div>
   );
 }

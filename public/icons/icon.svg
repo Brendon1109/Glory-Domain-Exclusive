@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Glory Domain">
-  <rect width="512" height="512" rx="120" fill="#4338ca"/>
-  <g fill="#f59e0b">
+  <rect width="512" height="512" rx="120" fill="#1b1a17"/>
+  <g fill="#9a7b3f">
     <rect x="244" y="78" width="24" height="86" rx="8"/>
     <rect x="222" y="104" width="68" height="22" rx="8"/>
   </g>
-  <path d="M256 178c-42-28-100-30-146-18v206c46-12 104-10 146 16 42-26 100-28 146-16V160c-46-12-104-10-146 18z" fill="#faf8f4"/>
-  <path d="M256 178v204" stroke="#c7b3ff" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M256 178c-42-28-100-30-146-18v206c46-12 104-10 146 16 42-26 100-28 146-16V160c-46-12-104-10-146 18z" fill="#f6f4ee"/>
+  <path d="M256 178v204" stroke="#c8b48a" stroke-width="10" fill="none" stroke-linecap="round"/>
 </svg>
