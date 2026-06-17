@@ -4,6 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { LocalDateTime } from "@/components/local-datetime";
 
+// Keep members' personal prayer requests out of search engines / AI crawlers.
+export const metadata = { robots: { index: false, follow: true } };
+
 export default async function PrayerPage() {
   const requests = await getPrayerRequests();
   return (
