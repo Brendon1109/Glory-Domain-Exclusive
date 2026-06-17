@@ -1,20 +1,18 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Settings as Cog } from "lucide-react";
 import { BottomNav } from "@/components/bottom-nav";
 import { InstallPrompt } from "@/components/install-prompt";
-import { isMember } from "@/lib/session";
 import { getSettings } from "@/lib/settings";
+
+// The member app is open (no passcode); keep it server-rendered per request so
+// the daily verse, daily word and schedule stay fresh.
+export const dynamic = "force-dynamic";
 
 export default async function MemberLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Defense-in-depth: middleware redirects unauthenticated users, but we verify
-  // the encrypted session here too (the real security boundary).
-  if (!(await isMember())) redirect("/enter");
-
   const settings = await getSettings().catch(() => null);
   const name = settings?.ministryName ?? "Glory Domain";
 

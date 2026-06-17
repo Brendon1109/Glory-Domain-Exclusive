@@ -3,13 +3,12 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { prayerRequests } from "@/db/schema";
-import { isMember, isAdmin } from "@/lib/session";
+import { isAdmin } from "@/lib/session";
 import { prayerSchema } from "@/lib/validators";
 
 type Result = { ok?: true; error?: string };
 
 export async function createPrayerRequest(formData: FormData): Promise<Result> {
-  if (!(await isMember())) return { error: "Please sign in first." };
   const parsed = prayerSchema.safeParse({
     name: String(formData.get("name") ?? ""),
     body: String(formData.get("body") ?? ""),
