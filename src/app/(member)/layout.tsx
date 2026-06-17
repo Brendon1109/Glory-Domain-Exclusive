@@ -15,6 +15,7 @@ export default async function MemberLayout({
 }) {
   const settings = await getSettings().catch(() => null);
   const name = settings?.ministryName ?? "Glory Domain";
+  const year = new Date().getFullYear();
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-lg flex-col">
@@ -33,7 +34,26 @@ export default async function MemberLayout({
           <Cog className="h-5 w-5" />
         </Link>
       </header>
-      <main className="flex-1 px-4 pb-28 pt-4">{children}</main>
+      <main className="flex-1 px-4 pb-28 pt-4">
+        {children}
+        <footer className="mt-10 border-t border-line pt-5 text-center">
+          <p className="text-xs text-faint">
+            © {year} {name}
+          </p>
+          <p className="mt-1 text-xs font-medium tracking-wide text-muted">
+            Developed by{" "}
+            <a
+              href="https://www.linkedin.com/in/brendon-mapinda-20b6911a0/"
+              target="_blank"
+              rel="noopener"
+              className="text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent"
+            >
+              Brendon
+            </a>
+            &trade;
+          </p>
+        </footer>
+      </main>
       <InstallPrompt />
       <BottomNav />
     </div>
