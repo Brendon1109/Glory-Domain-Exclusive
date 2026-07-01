@@ -43,7 +43,7 @@ export default async function MemberLayout({
           <p className="mt-1 text-xs font-medium tracking-wide text-muted">
             Developed by{" "}
             <a
-              href="https://www.linkedin.com/in/brendon-mapinda-20b6911a0/"
+              href="https://brendon-mapinda-portfolio.vercel.app/"
               target="_blank"
               rel="noopener"
               className="text-ink underline decoration-line underline-offset-4 transition-colors hover:text-accent"
@@ -51,6 +51,25 @@ export default async function MemberLayout({
               Brendon
             </a>
             &trade;
+          </p>
+          <p className="mt-1 text-[0.7rem] text-faint">
+            <a
+              href="https://brendon-mapinda-portfolio.vercel.app/"
+              target="_blank"
+              rel="noopener"
+              className="transition-colors hover:text-ink"
+            >
+              Portfolio
+            </a>
+            {" · "}
+            <a
+              href="https://www.linkedin.com/in/brendon-mapinda-20b6911a0/"
+              target="_blank"
+              rel="noopener"
+              className="transition-colors hover:text-ink"
+            >
+              LinkedIn
+            </a>
           </p>
         </footer>
       </main>
