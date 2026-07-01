@@ -42,7 +42,7 @@ export default async function AdminDashboard() {
         <AdminLink href="/admin/teachings" icon={CalendarPlus} label="Schedule a teaching or add a recording" />
         <AdminLink href="/admin/prayer" icon={Heart} label="Answer prayer requests" />
         <AdminLink href="/admin/worship" icon={Music} label="Manage praise & worship" />
-        <AdminLink href="/admin/settings" icon={Settings} label="Passcode, WhatsApp links & daily verse" />
+        <AdminLink href="/admin/settings" icon={Settings} label="WhatsApp links & daily verse" />
       </div>
     </div>
   );
