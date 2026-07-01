@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://glory-domain-exclusive.vercel.app";
+const SITE_URL = "https://glorydomain.org";
 
 // Allow all crawlers — including AI assistants' crawlers (GPTBot, OAI-SearchBot,
 // ChatGPT-User, Google-Extended, PerplexityBot, meta-externalagent, etc.) which

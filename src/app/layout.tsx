@@ -10,7 +10,7 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
-const SITE_URL = "https://glory-domain-exclusive.vercel.app";
+const SITE_URL = "https://glorydomain.org";
 const DESCRIPTION =
   "Glory Domain is the online home of Pastor Sethwatchman's ministry — live Bible teachings and prayer calls, an embedded KJV, World English and Shona Bible with a daily verse and daily word, and curated praise & worship.";
 
