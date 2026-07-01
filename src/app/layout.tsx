@@ -103,6 +103,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full">
+        <link rel="preconnect" href="https://i.ytimg.com" />
+        <link rel="preconnect" href="https://www.youtube.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

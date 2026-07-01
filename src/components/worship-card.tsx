@@ -35,6 +35,9 @@ export function WorshipCard({ item }: { item: WorshipItem }) {
         <img
           src={yt.thumbnail}
           alt=""
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover opacity-90"
         />
       ) : (

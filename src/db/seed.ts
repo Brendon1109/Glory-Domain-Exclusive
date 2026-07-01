@@ -14,14 +14,14 @@ const DEFAULT_PASSCODE = process.env.SEED_PASSCODE ?? "glory";
  * inline) from the admin Worship page.
  */
 const WORSHIP_SEED = [
-  { title: "Praise & Worship Songs", kind: "playlist", youtubeUrl: "https://www.youtube.com/results?search_query=praise+and+worship+songs", sortOrder: 1 },
-  { title: "Gospel Worship Mix", kind: "playlist", youtubeUrl: "https://www.youtube.com/results?search_query=gospel+worship+music", sortOrder: 2 },
-  { title: "Hillsong Worship", kind: "playlist", youtubeUrl: "https://www.youtube.com/results?search_query=hillsong+worship", sortOrder: 3 },
-  { title: "Bethel Music Worship", kind: "playlist", youtubeUrl: "https://www.youtube.com/results?search_query=bethel+music+worship", sortOrder: 4 },
-  { title: "Shona Gospel Worship", kind: "playlist", youtubeUrl: "https://www.youtube.com/results?search_query=shona+gospel+worship", sortOrder: 5 },
-  { title: "African Gospel Praise", kind: "playlist", youtubeUrl: "https://www.youtube.com/results?search_query=african+gospel+praise", sortOrder: 6 },
-  { title: "Soaking & Spontaneous Worship", kind: "playlist", youtubeUrl: "https://www.youtube.com/results?search_query=soaking+worship+instrumental", sortOrder: 7 },
-  { title: "Classic Hymns of Faith", kind: "playlist", youtubeUrl: "https://www.youtube.com/results?search_query=classic+hymns", sortOrder: 8 },
+  { title: "Who You Say I Am — Hillsong Worship", kind: "song", youtubeUrl: "https://www.youtube.com/watch?v=lKw6uqtGFfo", sortOrder: 1 },
+  { title: "Jireh — Elevation Worship & Maverick City", kind: "song", youtubeUrl: "https://www.youtube.com/watch?v=mC-zw0zCCtg", sortOrder: 2 },
+  { title: "Holy Forever — Bethel Music", kind: "song", youtubeUrl: "https://www.youtube.com/watch?v=oOXvQz_gtfA", sortOrder: 3 },
+  { title: "Goodness of God — Bethel Music", kind: "song", youtubeUrl: "https://www.youtube.com/watch?v=IvSuGyJQ6oM", sortOrder: 4 },
+  { title: "Sezva Ndiri — Takesure Zamar Ncube", kind: "song", youtubeUrl: "https://www.youtube.com/watch?v=ABo1YKicmhQ", sortOrder: 5 },
+  { title: "African Gospel Praise Mix", kind: "playlist", youtubeUrl: "https://www.youtube.com/watch?v=eD9p-jpQ7rk", sortOrder: 6 },
+  { title: "Soaking Worship — Instrumental", kind: "song", youtubeUrl: "https://www.youtube.com/watch?v=XiC3MV41Dpo", sortOrder: 7 },
+  { title: "Amazing Grace — Rosemary Siemens", kind: "song", youtubeUrl: "https://www.youtube.com/watch?v=rxuSdBDib-s", sortOrder: 8 },
 ];
 
 async function main() {
