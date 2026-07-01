@@ -1,4 +1,4 @@
-// Captures screenshots of the live app and renders an easy-to-read PDF guide.
+// Captures screenshots of the live app and renders a compact, easy-to-read PDF guide.
 //   Setup (dev only, not committed): npm i -D playwright && npx playwright install chromium
 //   Run: node scripts/make-guide.mjs
 import { chromium } from "playwright";
@@ -12,16 +12,12 @@ const ADMIN_PW = "@glorydomain26";
 const shotsDir = path.join(os.tmpdir(), "gd-guide-shots");
 const outPdf = path.join(process.cwd(), "Glory-Domain-App-Guide.pdf");
 
-// Neutralise fixed/sticky bars so full-page screenshots don't duplicate them.
-const INJECT =
-  "header{position:static!important} nav{position:static!important} main{padding-bottom:20px!important} .fixed{position:static!important} .backdrop-blur{backdrop-filter:none!important}";
-
 await mkdir(shotsDir, { recursive: true });
 const browser = await chromium.launch();
 
-// ---- Member screens (mobile) ----
+// ---- Member screens (mobile, fixed viewport → no elongated strips) ----
 const phone = await browser.newContext({
-  viewport: { width: 400, height: 850 },
+  viewport: { width: 400, height: 780 },
   deviceScaleFactor: 2,
   isMobile: true,
   hasTouch: true,
@@ -31,10 +27,9 @@ const p = await phone.newPage();
 async function shot(url, name, waitSel) {
   try {
     await p.goto(BASE + url, { waitUntil: "load", timeout: 45000 });
-    await p.addStyleTag({ content: INJECT });
     if (waitSel) await p.waitForSelector(waitSel, { timeout: 9000 }).catch(() => {});
-    await p.waitForTimeout(1800);
-    await p.screenshot({ path: path.join(shotsDir, name + ".png"), fullPage: true });
+    await p.waitForTimeout(1700);
+    await p.screenshot({ path: path.join(shotsDir, name + ".png") }); // viewport only
     console.log("shot", name);
   } catch (e) {
     console.log("FAIL", name, e.message);
@@ -44,14 +39,12 @@ async function shot(url, name, waitSel) {
 await shot("/", "home");
 await shot("/bible", "bible-list");
 await shot("/bible/JHN/3", "bible-read", "sup");
-// search with a sample query
 try {
   await p.goto(BASE + "/bible/search", { waitUntil: "load" });
-  await p.addStyleTag({ content: INJECT });
   await p.fill("input", "faith");
   await p.click('button[type="submit"]');
-  await p.waitForTimeout(2200);
-  await p.screenshot({ path: path.join(shotsDir, "bible-search.png"), fullPage: true });
+  await p.waitForTimeout(2000);
+  await p.screenshot({ path: path.join(shotsDir, "bible-search.png") });
   console.log("shot bible-search");
 } catch (e) {
   console.log("FAIL bible-search", e.message);
@@ -61,29 +54,29 @@ await shot("/worship", "worship");
 await shot("/prayer", "prayer");
 await phone.close();
 
-// ---- Pastor / admin screens ----
+// ---- Pastor / admin screens (fixed viewport) ----
 const desk = await browser.newContext({
-  viewport: { width: 760, height: 1000 },
+  viewport: { width: 700, height: 860 },
   deviceScaleFactor: 2,
 });
 const a = await desk.newPage();
 try {
   await a.goto(BASE + "/admin/login", { waitUntil: "load" });
-  await a.waitForTimeout(800);
-  await a.screenshot({ path: path.join(shotsDir, "admin-login.png"), fullPage: true });
+  await a.waitForTimeout(700);
+  await a.screenshot({ path: path.join(shotsDir, "admin-login.png") });
   console.log("shot admin-login");
   await a.fill('input[name="password"]', ADMIN_PW);
   await a.click('button[type="submit"]');
   await a.waitForURL("**/admin", { timeout: 20000 });
-  await a.waitForTimeout(1200);
+  await a.waitForTimeout(1000);
 } catch (e) {
   console.log("FAIL admin-login", e.message);
 }
 async function ashot(url, name) {
   try {
     await a.goto(BASE + url, { waitUntil: "load", timeout: 45000 });
-    await a.waitForTimeout(1200);
-    await a.screenshot({ path: path.join(shotsDir, name + ".png"), fullPage: true });
+    await a.waitForTimeout(1000);
+    await a.screenshot({ path: path.join(shotsDir, name + ".png") });
     console.log("shot", name);
   } catch (e) {
     console.log("FAIL", name, e.message);
@@ -108,203 +101,66 @@ async function img(name) {
 }
 
 const MEMBER = [
-  {
-    shot: "home",
-    device: "phone",
-    title: "Opening the app & the menu",
-    steps: [
-      `Open <b>${SITE}</b> in your phone's web browser.`,
-      "That's it — no password needed. You're straight in.",
-      "The <b>menu bar at the bottom</b> has five buttons: <b>Home</b>, <b>Bible</b>, <b>Teach</b>, <b>Worship</b> and <b>Prayer</b>. Tap any of them to move around.",
-      "Tip: in your browser menu, tap <b>“Add to Home screen”</b> so it opens like a normal app.",
-    ],
-  },
-  {
-    shot: "home",
-    device: "phone",
-    title: "The Home screen",
-    steps: [
-      "The <b>Verse of the Day</b> is at the top — it changes every day.",
-      "Below it, the pastor's <b>Word for Today</b> (a short teaching) appears when he posts one.",
-      "You'll see the <b>Next teaching</b>, quick buttons, <b>Today's worship</b>, and buttons to open the <b>WhatsApp</b> group.",
-    ],
-  },
-  {
-    shot: "bible-list",
-    device: "phone",
-    title: "Reading the Bible — choose a book",
-    steps: [
-      "Tap <b>Bible</b> in the bottom menu.",
-      "Scroll to the <b>Old Testament</b> or <b>New Testament</b> and tap the book you want (e.g. John).",
-      "Tap <b>Search</b> (top right) to look for a word or phrase.",
-    ],
-  },
-  {
-    shot: "bible-read",
-    device: "phone",
-    title: "Reading the Bible — a chapter",
-    steps: [
-      "Read the chapter. Use <b>Previous</b> / <b>Next</b> at the bottom to move between chapters.",
-      "Use the toggle (top right) to switch translation: <b>KJV</b>, <b>WEB</b> (modern English) or <b>Shona</b>.",
-      "Note: the Shona Bible is the New Testament (Matthew–Revelation).",
-    ],
-  },
-  {
-    shot: "bible-search",
-    device: "phone",
-    title: "Searching the Bible",
-    steps: [
-      "Type a word or phrase and tap the search button.",
-      "Tap any result to open that verse in the chapter.",
-      "You can search in KJV, WEB or Shona using the small toggle.",
-    ],
-  },
-  {
-    shot: "teachings",
-    device: "phone",
-    title: "Live teachings & recordings",
-    steps: [
-      "Tap <b>Teach</b>. <b>Upcoming</b> shows live sessions; <b>Library</b> shows past recordings.",
-      "Tap a session, type your <b>name</b>, then tap <b>Join the teaching</b> to enter the video call.",
-      "To save data, you can keep your camera off, or join sessions marked <b>Audio only</b>.",
-    ],
-  },
-  {
-    shot: "worship",
-    device: "phone",
-    title: "Praise & Worship",
-    steps: [
-      "Tap <b>Worship</b> to see songs, albums and playlists.",
-      "There's a fresh <b>Today's pick</b> each day, plus the full collection.",
-      "Tap any card to play it (it opens the video / YouTube).",
-    ],
-  },
-  {
-    shot: "prayer",
-    device: "phone",
-    title: "The Prayer wall",
-    steps: [
-      "Tap <b>Prayer</b>. Type your request (your name is optional) and tap <b>Share request</b>.",
-      "Everyone in the group can see requests and pray together.",
-      "The pastor marks requests <b>Praying</b> or <b>Answered</b> — you'll see the badge update.",
-    ],
-  },
+  { shot: "home", title: "Opening the app & menu", steps: ["Open <b>" + SITE + "</b> in your phone browser — no password needed.", "Use the <b>bottom menu</b>: Home, Bible, Teach, Worship, Prayer.", "Tip: browser menu → <b>“Add to Home screen”</b> to use it like an app."] },
+  { shot: "home", title: "The Home screen", steps: ["<b>Verse of the Day</b> at the top (changes daily).", "The pastor's <b>Word for Today</b> appears here when posted.", "See the next teaching, worship, and <b>WhatsApp</b> buttons."] },
+  { shot: "bible-list", title: "Bible — choose a book", steps: ["Tap <b>Bible</b>, then tap a book (Old or New Testament).", "Tap <b>Search</b> (top right) to find a word or phrase."] },
+  { shot: "bible-read", title: "Bible — read a chapter", steps: ["Use <b>Previous / Next</b> to move between chapters.", "Toggle translation: <b>KJV</b>, <b>WEB</b> (modern) or <b>Shona</b>.", "Shona covers the New Testament (Matthew–Revelation)."] },
+  { shot: "bible-search", title: "Search the Bible", steps: ["Type a word and tap search.", "Tap a result to open that verse.", "Works in KJV, WEB or Shona."] },
+  { shot: "teachings", title: "Teachings & recordings", steps: ["<b>Upcoming</b> = live sessions; <b>Library</b> = recordings.", "Tap a session, enter your name, tap <b>Join</b>.", "Keep camera off (or use audio-only) to save data."] },
+  { shot: "worship", title: "Praise & Worship", steps: ["Tap <b>Worship</b> for songs, albums & playlists.", "A fresh <b>Today's pick</b> each day.", "Tap any card to play it."] },
+  { shot: "prayer", title: "The Prayer wall", steps: ["Write a request (name optional), tap <b>Share request</b>.", "The pastor marks it <b>Praying</b> or <b>Answered</b>."] },
 ];
 
 const PASTOR = [
-  {
-    shot: "admin-login",
-    device: "screen",
-    title: "Signing in as the pastor",
-    steps: [
-      `Go to <b>${SITE}/admin</b> (or tap the small <b>gear</b> icon at the top-right of the app).`,
-      "Enter your <b>admin password</b> and tap <b>Sign in</b>.",
-      "Keep this password private — it's only for you.",
-    ],
-  },
-  {
-    shot: "admin-dash",
-    device: "screen",
-    title: "Your dashboard",
-    steps: [
-      "The top row shows quick counts (upcoming teachings, prayer requests, etc.).",
-      "The tabs — <b>Word, Teachings, Prayer, Worship, Settings</b> — are how you manage everything.",
-      "Tap <b>View app</b> anytime to see it as members do, or <b>Sign out</b> when finished.",
-    ],
-  },
-  {
-    shot: "admin-word",
-    device: "screen",
-    title: "Post the Word for Today",
-    steps: [
-      "Open the <b>Word</b> tab. Add an optional title and write your teaching.",
-      "Tap <b>Post teaching</b> — it instantly appears on every member's <b>Home</b> screen.",
-      "Post a new one each day; the latest one always shows. Old ones are listed below and can be deleted.",
-    ],
-  },
-  {
-    shot: "admin-teachings",
-    device: "screen",
-    title: "Schedule teachings & add recordings",
-    steps: [
-      "Open <b>Teachings</b>. Choose <b>Live session</b> (set date & time — a private video room is created for you) or <b>Recording</b> (paste a YouTube or Google Drive link).",
-      "Tap <b>Add teaching</b>.",
-      "After a live session, paste its recording link on that teaching so members can re-watch it in the Library.",
-    ],
-  },
-  {
-    shot: "admin-prayer",
-    device: "screen",
-    title: "Answer prayer requests",
-    steps: [
-      "Open <b>Prayer</b> to see every request from the group.",
-      "Tap <b>Praying</b> or <b>Answered</b> to update its status (members see the badge).",
-      "Use the trash icon to remove anything inappropriate.",
-    ],
-  },
-  {
-    shot: "admin-worship",
-    device: "screen",
-    title: "Manage praise & worship",
-    steps: [
-      "Open <b>Worship</b>. Add a title, pick the type (song / album / playlist) and paste the <b>YouTube link</b>.",
-      "Tap <b>Add</b> — it appears in the members' Worship section.",
-      "The app automatically rotates a different “Today's pick” each day.",
-    ],
-  },
-  {
-    shot: "admin-settings",
-    device: "screen",
-    title: "Settings",
-    steps: [
-      "Set the <b>ministry name</b> and your <b>WhatsApp</b> links (message-the-pastor and the group invite).",
-      "Optionally set a <b>daily verse override</b> to choose a specific verse.",
-      "Tap <b>Save settings</b>.",
-    ],
-  },
+  { shot: "admin-login", title: "Signing in", steps: ["Go to <b>" + SITE + "/admin</b> (or tap the gear icon).", "Enter your <b>admin password</b> → <b>Sign in</b>.", "Keep this password private."] },
+  { shot: "admin-dash", title: "Your dashboard", steps: ["Quick counts up top.", "Tabs: <b>Word, Teachings, Prayer, Worship, Settings</b>.", "<b>View app</b> to preview; <b>Sign out</b> when done."] },
+  { shot: "admin-word", title: "Post the daily Word", steps: ["Open <b>Word</b>, write your teaching, tap <b>Post</b>.", "It appears on every member's Home screen.", "Post a new one daily; the latest shows."] },
+  { shot: "admin-teachings", title: "Schedule teachings", steps: ["Choose <b>Live session</b> (a video room is auto-created) or <b>Recording</b> (paste a link).", "Tap <b>Add teaching</b>.", "After a live session, paste its recording link."] },
+  { shot: "admin-prayer", title: "Answer prayers", steps: ["See every request.", "Tap <b>Praying</b> or <b>Answered</b>.", "Delete anything inappropriate."] },
+  { shot: "admin-worship", title: "Manage worship", steps: ["Add a title, type, and <b>YouTube link</b>, tap <b>Add</b>.", "It appears in the members' Worship section."] },
+  { shot: "admin-settings", title: "Settings", steps: ["Set ministry name and <b>WhatsApp</b> links.", "Optionally set a <b>daily verse override</b>.", "Tap <b>Save settings</b>."] },
 ];
 
-async function sectionHtml(list) {
-  const parts = [];
+async function cards(list) {
+  const out = [];
   for (const s of list) {
     const src = await img(s.shot);
     const steps = s.steps.map((t) => `<li>${t}</li>`).join("");
-    parts.push(`
-      <section class="screen">
-        <div class="shot ${s.device}">${src ? `<img src="${src}"/>` : `<div class="missing">screen</div>`}</div>
-        <div class="steps"><h3>${s.title}</h3><ol>${steps}</ol></div>
-      </section>`);
+    out.push(
+      `<div class="card ${list === MEMBER ? "phone" : "screen"}"><h3>${s.title}</h3>` +
+        `<div class="thumb">${src ? `<img src="${src}"/>` : ""}</div>` +
+        `<ol>${steps}</ol></div>`,
+    );
   }
-  return parts.join("");
+  return out.join("");
 }
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
-  * { box-sizing: border-box; }
-  body { font-family: "Segoe UI", Arial, sans-serif; color: #1b1a17; margin: 0; font-size: 12px; line-height: 1.5; }
-  h1,h2,h3 { font-family: Georgia, "Times New Roman", serif; }
-  .cover { background:#1b1a17; color:#f6f4ee; height: 1040px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; page-break-after: always; }
-  .mono { width:96px; height:96px; border:3px solid #9a7b3f; border-radius:22px; display:flex; align-items:center; justify-content:center; color:#9a7b3f; font-family:Georgia,serif; font-size:44px; font-weight:bold; }
-  .cover h1 { font-size:60px; margin:28px 0 6px; }
-  .cover .sub { font-size:22px; color:rgba(246,244,238,.72); }
-  .cover .rule { width:120px; height:5px; background:#9a7b3f; border-radius:3px; margin:34px 0; }
-  .cover .addr { font-size:18px; color:#9a7b3f; letter-spacing:1px; }
-  .cover .who { margin-top:10px; font-size:14px; color:rgba(246,244,238,.6); }
-  .band { background:#f1ead9; border-left:6px solid #9a7b3f; padding:14px 18px; margin:30px 0 22px; page-break-after: avoid; }
-  .band .eyebrow { color:#9a7b3f; font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:bold; }
-  .band h2 { margin:2px 0 0; font-size:26px; }
-  .intro { padding: 26px 4px 0; }
-  .intro h2 { font-size:22px; margin:0 0 8px; }
-  .intro p { color:#4a463c; max-width: 640px; }
-  .screen { display:flex; gap:22px; align-items:flex-start; padding:14px 4px; border-bottom:1px solid #eee; page-break-inside: avoid; }
-  .shot img { display:block; border:1px solid #e2ddd0; border-radius:14px; box-shadow:0 2px 8px rgba(20,18,15,.08); }
-  .shot.phone img { width:190px; }
-  .shot.screen img { width:320px; }
-  .missing { width:190px; height:300px; background:#eee; display:flex; align-items:center; justify-content:center; color:#999; border-radius:14px; }
-  .steps { flex:1; }
-  .steps h3 { font-size:17px; margin:2px 0 8px; color:#1b1a17; }
-  .steps ol { margin:0; padding-left:18px; }
-  .steps li { margin-bottom:7px; color:#33302a; }
-  .steps b { color:#1b1a17; }
+  *{box-sizing:border-box}
+  body{font-family:"Segoe UI",Arial,sans-serif;color:#1b1a17;margin:0;font-size:11px;line-height:1.45}
+  h1,h2,h3{font-family:Georgia,"Times New Roman",serif}
+  .cover{background:#1b1a17;color:#f6f4ee;height:990px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;page-break-after:always}
+  .mono{width:88px;height:88px;border:3px solid #9a7b3f;border-radius:20px;display:flex;align-items:center;justify-content:center;color:#9a7b3f;font-family:Georgia,serif;font-size:40px;font-weight:bold}
+  .cover h1{font-size:54px;margin:24px 0 6px}
+  .cover .sub{font-size:20px;color:rgba(246,244,238,.72)}
+  .cover .rule{width:110px;height:5px;background:#9a7b3f;border-radius:3px;margin:30px 0}
+  .cover .addr{font-size:17px;color:#9a7b3f;letter-spacing:1px}
+  .cover .who{margin-top:8px;font-size:13px;color:rgba(246,244,238,.6)}
+  .intro{padding:6px 2px 0}
+  .intro p{color:#4a463c;max-width:660px;margin:6px 0 0}
+  .band{background:#f1ead9;border-left:5px solid #9a7b3f;padding:9px 14px;margin:16px 0 12px}
+  .band .eyebrow{color:#9a7b3f;font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:bold}
+  .band h2{margin:1px 0 0;font-size:21px}
+  .grid{column-count:2;column-gap:14px}
+  .card{break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 12px;padding:10px 11px;border:1px solid #ece7db;border-radius:11px;background:#fff}
+  .card h3{font-size:13px;margin:0 0 7px;color:#1b1a17}
+  .card .thumb{text-align:center;margin-bottom:8px}
+  .card.phone img{width:150px}
+  .card.screen img{width:100%}
+  .card img{border:1px solid #e2ddd0;border-radius:8px;box-shadow:0 1px 4px rgba(20,18,15,.08);display:inline-block}
+  .card ol{margin:0;padding-left:15px}
+  .card li{margin-bottom:4px;color:#33302a}
+  .card b{color:#1b1a17}
 </style></head><body>
   <div class="cover">
     <div class="mono">GD</div>
@@ -316,15 +172,13 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   </div>
 
   <div class="intro">
-    <h2>Welcome</h2>
-    <p>Glory Domain is our online home for Bible teachings, prayer and worship. This short guide shows you how to use every part of it. <b>Part 1</b> is for everyone in the group; <b>Part 2</b> is for the pastor. Just open <b>${SITE}</b> on your phone to begin.</p>
+    <div class="band"><div class="eyebrow">Part 1</div><h2>For Members</h2></div>
+    <p style="margin-bottom:12px">Just open <b>${SITE}</b> on your phone — no password needed. Everything is in the bottom menu.</p>
   </div>
+  <div class="grid">${await cards(MEMBER)}</div>
 
-  <div class="band"><div class="eyebrow">Part 1</div><h2>For Members</h2></div>
-  ${await sectionHtml(MEMBER)}
-
-  <div class="band" style="page-break-before: always;"><div class="eyebrow">Part 2</div><h2>For the Pastor</h2></div>
-  ${await sectionHtml(PASTOR)}
+  <div class="band"><div class="eyebrow">Part 2</div><h2>For the Pastor</h2></div>
+  <div class="grid">${await cards(PASTOR)}</div>
 </body></html>`;
 
 const pdfPage = await browser.newPage();
@@ -333,11 +187,11 @@ await pdfPage.pdf({
   path: outPdf,
   format: "A4",
   printBackground: true,
-  margin: { top: "14mm", bottom: "16mm", left: "14mm", right: "14mm" },
+  margin: { top: "12mm", bottom: "14mm", left: "12mm", right: "12mm" },
   displayHeaderFooter: true,
   headerTemplate: "<span></span>",
   footerTemplate:
-    '<div style="width:100%;font-size:9px;color:#9a9384;font-family:Arial;padding:0 14mm;display:flex;justify-content:space-between;"><span>Glory Domain — App Guide</span><span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span></div>',
+    '<div style="width:100%;font-size:9px;color:#9a9384;font-family:Arial;padding:0 12mm;display:flex;justify-content:space-between;"><span>Glory Domain — App Guide</span><span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span></div>',
 });
 await browser.close();
 
