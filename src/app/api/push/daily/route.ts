@@ -1,18 +1,30 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getLatestDailyWord } from "@/lib/queries";
-import { sendToAll, dailyPayloadFromWord } from "@/lib/push";
+import { and, eq, lte } from "drizzle-orm";
+import { db } from "@/db";
+import { scheduledPushes } from "@/db/schema";
+import { sendToAll } from "@/lib/push";
 
-// Runs from Vercel Cron each morning. Sends the latest daily message only if it
-// was posted recently (so an old message isn't re-broadcast on a quiet day).
+// Runs each morning (Vercel Cron) and delivers any pushes the pastor queued
+// after hours. Does NOT auto-send anything on its own.
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (secret && req.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const word = await getLatestDailyWord();
-  if (!word || Date.now() - new Date(word.createdAt).getTime() > 26 * 3600 * 1000) {
-    return NextResponse.json({ ok: true, skipped: true });
+  const due = await db
+    .select()
+    .from(scheduledPushes)
+    .where(
+      and(eq(scheduledPushes.sent, false), lte(scheduledPushes.scheduledFor, new Date())),
+    );
+  let sent = 0;
+  for (const row of due) {
+    const res = await sendToAll({ title: row.title, body: row.body, url: row.url });
+    await db
+      .update(scheduledPushes)
+      .set({ sent: true })
+      .where(eq(scheduledPushes.id, row.id));
+    sent += res.sent ?? 0;
   }
-  const res = await sendToAll(dailyPayloadFromWord(word));
-  return NextResponse.json(res);
+  return NextResponse.json({ ok: true, delivered: due.length, sent });
 }

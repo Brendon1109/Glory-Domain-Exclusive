@@ -25,6 +25,8 @@ export function DailyWordAdmin({ words }: { words: DailyWord[] }) {
       const res = await fetch("/api/push/send", { method: "POST" });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) setNotifyMsg(d.error || "Couldn’t send notifications.");
+      else if (d.mode === "scheduled")
+        setNotifyMsg("It’s after hours — scheduled to send at 7am. 🌙");
       else if (d.ok === false)
         setNotifyMsg("Notifications aren’t set up yet.");
       else
@@ -101,7 +103,8 @@ export function DailyWordAdmin({ words }: { words: DailyWord[] }) {
           </h2>
           <p className="mb-3 text-xs text-muted">
             Send the latest message as a phone notification to everyone who
-            turned on alerts. It also sends automatically at 6am.
+            turned on alerts. During the day (7am–8pm) it sends right away;
+            after 8pm it’s scheduled for 7am.
           </p>
           <Button
             type="button"
@@ -115,7 +118,7 @@ export function DailyWordAdmin({ words }: { words: DailyWord[] }) {
             ) : (
               <Bell className="h-4 w-4" />
             )}
-            Notify everyone now
+            Send to everyone
           </Button>
           {notifyMsg ? (
             <p className="mt-2 text-sm text-green-700">{notifyMsg}</p>

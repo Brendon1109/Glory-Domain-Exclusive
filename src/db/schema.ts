@@ -81,6 +81,17 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** A push queued after-hours to go out at 7am (delivered by the cron). */
+export const scheduledPushes = pgTable("scheduled_pushes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  url: text("url").notNull().default("/"),
+  scheduledFor: timestamp("scheduled_for", { withTimezone: true }).notNull(),
+  sent: boolean("sent").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Teaching = typeof teachings.$inferSelect;
 export type NewTeaching = typeof teachings.$inferInsert;
 export type DailyWord = typeof dailyWords.$inferSelect;
@@ -88,3 +99,4 @@ export type PrayerRequest = typeof prayerRequests.$inferSelect;
 export type WorshipItem = typeof worshipItems.$inferSelect;
 export type Settings = typeof settings.$inferSelect;
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type ScheduledPush = typeof scheduledPushes.$inferSelect;

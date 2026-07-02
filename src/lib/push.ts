@@ -26,6 +26,32 @@ export function dailyPayloadFromWord(
   return { title, body: "Tap to read today’s message.", url: "/" };
 }
 
+// Zimbabwe time (CAT = UTC+2, no daylight saving).
+export function catHour(): number {
+  return new Date(Date.now() + 2 * 3600 * 1000).getUTCHours();
+}
+
+// Members are notified during the day only (07:00–20:00 CAT).
+export function isDaytimeCAT(): boolean {
+  const h = catHour();
+  return h >= 7 && h < 20;
+}
+
+// The next 07:00 CAT as a real UTC instant (today if before 7am, else tomorrow).
+export function next7amUtc(): Date {
+  const cat = new Date(Date.now() + 2 * 3600 * 1000);
+  const dayOffset = cat.getUTCHours() >= 20 ? 1 : 0;
+  const catSevenAm = Date.UTC(
+    cat.getUTCFullYear(),
+    cat.getUTCMonth(),
+    cat.getUTCDate() + dayOffset,
+    7,
+    0,
+    0,
+  );
+  return new Date(catSevenAm - 2 * 3600 * 1000);
+}
+
 export async function sendToAll(payload: PushPayload) {
   if (!ensure()) {
     return { ok: false as const, error: "not_configured", sent: 0, total: 0, removed: 0 };
