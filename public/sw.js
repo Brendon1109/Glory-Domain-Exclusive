@@ -3,7 +3,7 @@
 // - Static assets: stale-while-revalidate.
 // - Navigations: network-first with an offline fallback page.
 // - Auth + member/admin HTML: never cached (avoids leaking/staling gated data).
-const VERSION = "gd-v1";
+const VERSION = "gd-v2";
 const STATIC_CACHE = `static-${VERSION}`;
 const BIBLE_CACHE = `bible-${VERSION}`;
 const OFFLINE_URL = "/offline";
@@ -90,4 +90,43 @@ self.addEventListener("fetch", (event) => {
       })(),
     );
   }
+});
+
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = {};
+  }
+  const title = data.title || "Glory Domain";
+  const options = {
+    body: data.body || "Today’s message is ready — tap to read.",
+    icon: "/icons/icon.svg",
+    badge: "/icons/icon.svg",
+    tag: "gd-daily",
+    renotify: true,
+    data: { url: data.url || "/" },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/";
+  event.waitUntil(
+    (async () => {
+      const all = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+      for (const client of all) {
+        if ("focus" in client) {
+          if (client.navigate) client.navigate(url).catch(() => {});
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(url);
+    })(),
+  );
 });

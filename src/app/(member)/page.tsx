@@ -12,6 +12,7 @@ import { DailyVerseCard } from "@/components/daily-verse-card";
 import { DailyWordCard } from "@/components/daily-word-card";
 import { TeachingCard } from "@/components/teaching-card";
 import { WhatsappButtons } from "@/components/whatsapp-buttons";
+import { NotifyButton } from "@/components/notify-button";
 import { WorshipCard } from "@/components/worship-card";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -71,6 +72,9 @@ export default async function HomePage() {
           chatUrl={settings.whatsappChatUrl}
           groupUrl={settings.whatsappGroupUrl}
         />
+        <div className="mt-2">
+          <NotifyButton />
+        </div>
       </section>
     </div>
   );

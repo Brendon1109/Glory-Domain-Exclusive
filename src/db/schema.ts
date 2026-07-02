@@ -73,9 +73,18 @@ export const settings = pgTable("settings", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** Browser push-notification subscriptions (for the daily message broadcast). */
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  endpoint: text("endpoint").primaryKey(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Teaching = typeof teachings.$inferSelect;
 export type NewTeaching = typeof teachings.$inferInsert;
 export type DailyWord = typeof dailyWords.$inferSelect;
 export type PrayerRequest = typeof prayerRequests.$inferSelect;
 export type WorshipItem = typeof worshipItems.$inferSelect;
 export type Settings = typeof settings.$inferSelect;
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;

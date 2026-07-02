@@ -22,6 +22,13 @@
       "when": 1782977352838,
       "tag": "0002_silent_rage",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1782980160517,
+      "tag": "0003_nosy_zzzax",
+      "breakpoints": true
     }
   ]
 }

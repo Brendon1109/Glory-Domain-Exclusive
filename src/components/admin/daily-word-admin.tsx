@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Loader2 } from "lucide-react";
+import { Plus, Trash2, Loader2, Bell } from "lucide-react";
 import { createDailyWord, deleteDailyWord } from "@/server/actions/daily-word";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,23 @@ export function DailyWordAdmin({ words }: { words: DailyWord[] }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
+  const [notifyMsg, setNotifyMsg] = useState("");
+  const [notifying, startNotify] = useTransition();
+
+  function notifyEveryone() {
+    setNotifyMsg("");
+    startNotify(async () => {
+      const res = await fetch("/api/push/send", { method: "POST" });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) setNotifyMsg(d.error || "Couldn’t send notifications.");
+      else if (d.ok === false)
+        setNotifyMsg("Notifications aren’t set up yet.");
+      else
+        setNotifyMsg(
+          `Sent to ${d.sent} ${d.sent === 1 ? "person" : "people"}.`,
+        );
+    });
+  }
 
   function create(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -74,6 +91,35 @@ export function DailyWordAdmin({ words }: { words: DailyWord[] }) {
               Post teaching
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent>
+          <h2 className="mb-1 font-display text-lg font-semibold text-ink">
+            Notify everyone
+          </h2>
+          <p className="mb-3 text-xs text-muted">
+            Send the latest message as a phone notification to everyone who
+            turned on alerts. It also sends automatically at 6am.
+          </p>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={notifyEveryone}
+            disabled={notifying}
+            className="w-full"
+          >
+            {notifying ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Bell className="h-4 w-4" />
+            )}
+            Notify everyone now
+          </Button>
+          {notifyMsg ? (
+            <p className="mt-2 text-sm text-green-700">{notifyMsg}</p>
+          ) : null}
         </CardContent>
       </Card>
 
