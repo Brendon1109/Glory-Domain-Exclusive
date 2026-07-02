@@ -7,7 +7,7 @@ import {
   getWorshipItems,
   getLatestDailyWord,
 } from "@/lib/queries";
-import { pickForDay } from "@/lib/daily";
+import { pickForWeek } from "@/lib/daily";
 import { DailyVerseCard } from "@/components/daily-verse-card";
 import { DailyWordCard } from "@/components/daily-word-card";
 import { TeachingCard } from "@/components/teaching-card";
@@ -25,7 +25,7 @@ export default async function HomePage() {
     getWorshipItems(),
     getLatestDailyWord(),
   ]);
-  const todaysWorship = pickForDay(worship, today, 1)[0] ?? null;
+  const weeklyPick = pickForWeek(worship, today, 1)[0] ?? null;
 
   return (
     <div className="space-y-7">
@@ -53,10 +53,10 @@ export default async function HomePage() {
         <QuickLink href="/prayer" icon={Heart} label="Prayer" />
       </section>
 
-      {todaysWorship ? (
+      {weeklyPick ? (
         <section>
-          <h2 className="eyebrow mb-2.5">Today&apos;s worship</h2>
-          <WorshipCard item={todaysWorship} />
+          <h2 className="eyebrow mb-2.5">This week&apos;s worship</h2>
+          <WorshipCard item={weeklyPick} />
           <Link
             href="/worship"
             className="mt-3 inline-block text-sm font-medium text-ink underline decoration-line underline-offset-4"
