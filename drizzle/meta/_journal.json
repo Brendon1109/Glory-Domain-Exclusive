@@ -15,6 +15,13 @@
       "when": 1781679935574,
       "tag": "0001_freezing_starfox",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782977352838,
+      "tag": "0002_silent_rage",
+      "breakpoints": true
     }
   ]
 }

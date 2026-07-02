@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, desc, eq, gte, isNotNull } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNotNull, or } from "drizzle-orm";
 import { db } from "@/db";
 import {
   teachings,
@@ -28,7 +28,7 @@ export async function getRecordedTeachings() {
   return db
     .select()
     .from(teachings)
-    .where(isNotNull(teachings.recordingUrl))
+    .where(or(isNotNull(teachings.recordingUrl), isNotNull(teachings.mediaUrl)))
     .orderBy(desc(teachings.createdAt));
 }
 

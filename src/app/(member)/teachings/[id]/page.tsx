@@ -4,6 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { getTeaching } from "@/lib/queries";
 import { RoomJoin } from "@/components/room-join";
 import { RecordingPlayer } from "@/components/recording-player";
+import { MediaPlayer } from "@/components/media-player";
 
 export default async function TeachingDetailPage({
   params,
@@ -36,6 +37,14 @@ export default async function TeachingDetailPage({
         <RoomJoin roomName={teaching.roomName!} audioOnly={teaching.audioOnly} />
       ) : null}
 
+      {teaching.mediaUrl ? (
+        <MediaPlayer
+          src={teaching.mediaUrl}
+          kind={(teaching.mediaKind as "audio" | "video" | null) ?? "audio"}
+          title={teaching.title}
+        />
+      ) : null}
+
       {teaching.recordingUrl ? (
         <div>
           {isLive ? (
@@ -47,8 +56,8 @@ export default async function TeachingDetailPage({
         </div>
       ) : null}
 
-      {!isLive && !teaching.recordingUrl ? (
-        <div className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-500">
+      {!isLive && !teaching.recordingUrl && !teaching.mediaUrl ? (
+        <div className="rounded-xl border border-line bg-surface p-5 text-sm text-muted">
           This teaching isn&apos;t available to watch yet.
         </div>
       ) : null}

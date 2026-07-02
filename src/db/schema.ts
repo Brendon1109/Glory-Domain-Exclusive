@@ -22,6 +22,10 @@ export const teachings = pgTable("teachings", {
   scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
   roomName: text("room_name"),
   recordingUrl: text("recording_url"),
+  // Uploaded sermon/devotion file (Vercel Blob) that plays in-app with
+  // background audio + Picture-in-Picture.
+  mediaUrl: text("media_url"),
+  mediaKind: text("media_kind"), // 'audio' | 'video'
   audioOnly: boolean("audio_only").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

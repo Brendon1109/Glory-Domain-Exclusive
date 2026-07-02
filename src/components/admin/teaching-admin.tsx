@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { LocalDateTime } from "@/components/local-datetime";
+import { MediaUpload } from "./media-upload";
 import { cn } from "@/lib/utils";
 import type { Teaching } from "@/db/schema";
 
@@ -167,6 +168,11 @@ function TeachingRow({
             </Badge>
             {teaching.audioOnly ? <Badge>Audio only</Badge> : null}
             {teaching.recordingUrl ? <Badge tone="green">Has recording</Badge> : null}
+            {teaching.mediaUrl ? (
+              <Badge tone="green">
+                {teaching.mediaKind === "video" ? "Video" : "Audio"}
+              </Badge>
+            ) : null}
           </div>
           <p className="font-medium text-stone-900">{teaching.title}</p>
           {teaching.scheduledAt ? (
@@ -208,6 +214,15 @@ function TeachingRow({
           </div>
         </div>
       ) : null}
+
+      <div className="mt-3">
+        <Label className="text-xs">
+          Sermon audio/video (plays in the background)
+        </Label>
+        <div className="mt-1">
+          <MediaUpload teachingId={teaching.id} hasMedia={!!teaching.mediaUrl} />
+        </div>
+      </div>
     </Card>
   );
 }

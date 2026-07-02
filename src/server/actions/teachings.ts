@@ -61,6 +61,34 @@ export async function updateTeachingRecording(
   return { ok: true };
 }
 
+export async function setTeachingMedia(
+  id: string,
+  mediaUrl: string,
+  mediaKind: "audio" | "video",
+): Promise<Result> {
+  if (!(await isAdmin())) return { error: "Not allowed." };
+  await db
+    .update(teachings)
+    .set({ mediaUrl, mediaKind })
+    .where(eq(teachings.id, id));
+  revalidatePath("/");
+  revalidatePath("/teachings");
+  revalidatePath("/admin/teachings");
+  revalidatePath(`/teachings/${id}`);
+  return { ok: true };
+}
+
+export async function clearTeachingMedia(id: string): Promise<Result> {
+  if (!(await isAdmin())) return { error: "Not allowed." };
+  await db
+    .update(teachings)
+    .set({ mediaUrl: null, mediaKind: null })
+    .where(eq(teachings.id, id));
+  revalidatePath("/teachings");
+  revalidatePath("/admin/teachings");
+  return { ok: true };
+}
+
 export async function deleteTeaching(id: string): Promise<Result> {
   if (!(await isAdmin())) return { error: "Not allowed." };
   await db.delete(teachings).where(eq(teachings.id, id));
