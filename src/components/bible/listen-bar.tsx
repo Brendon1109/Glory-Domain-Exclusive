@@ -100,10 +100,16 @@ const isApple =
 export function ListenBar({
   verses,
   translation,
+  bookId,
+  chapter,
+  title,
   onActiveVerse,
 }: {
   verses: Verse[];
   translation: string;
+  bookId: string;
+  chapter: number;
+  title: string;
   onActiveVerse: (n: number | null) => void;
 }) {
   const supported = useSyncExternalStore(
@@ -120,6 +126,13 @@ export function ListenBar({
 
   const [status, setStatus] = useState<"idle" | "playing" | "paused">("idle");
   const [rateIdx, setRateIdx] = useState(0);
+  // Human narration (Bible Brain) beats device text-to-speech when available.
+  const [narration, setNarration] = useState<"unknown" | "yes" | "no">(
+    "unknown",
+  );
+  // Which engine the current/last playback used; locked at Play time so a
+  // late narration probe can't swap engines mid-listen.
+  const [mode, setMode] = useState<"tts" | "audio" | null>(null);
   const [voicePref, setVoicePref] = useState<VoicePref | null>(() => {
     if (typeof window === "undefined") return null;
     try {
@@ -133,12 +146,15 @@ export function ListenBar({
   const rateRef = useRef(RATES[0]);
   const englishRef = useRef(english);
   const prefRef = useRef(voicePref);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   // Chrome garbage-collects utterances that aren't referenced, dropping their
   // onend events — keep the active one alive here. It also doubles as an
   // identity guard so onend fired by cancel() is ignored.
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   // Pending re-speak scheduled after a rate/voice change (see restartCurrent).
   const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const streamUrl = `/api/bible/audio?t=${translation}&book=${bookId}&ch=${chapter}`;
 
   useEffect(() => {
     englishRef.current = english;
@@ -152,6 +168,18 @@ export function ListenBar({
     }
   }, []);
 
+  // The component remounts per (translation, book, chapter) — the reader only
+  // renders it once verses load — so probing narration on mount is enough.
+  useEffect(() => {
+    const ctrl = new AbortController();
+    fetch(`${streamUrl}&meta=1`, { signal: ctrl.signal })
+      .then((res) => (res.ok ? res.json() : { available: false }))
+      .then((d) => setNarration(d?.available ? "yes" : "no"))
+      .catch(() => setNarration("no"));
+    return () => ctrl.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!supported) return;
     return () => {
@@ -163,11 +191,13 @@ export function ListenBar({
 
   // speechSynthesis is not background-capable media: on iOS the utterance
   // chain dies as soon as the screen auto-locks or the tab is hidden. Hold a
-  // screen wake lock while playing (best-effort; iOS Safari 16.4+), and if the
-  // page still gets hidden, fold to "paused" — indexRef keeps the verse, so a
-  // single tap on Resume continues instead of the bar lying with "Pause".
+  // screen wake lock while TTS plays (best-effort; iOS Safari 16.4+), and if
+  // the page still gets hidden, fold to "paused" — indexRef keeps the verse,
+  // so a single tap on Resume continues instead of the bar lying with "Pause".
+  // Real narration (mode "audio") plays fine in the background, so it is
+  // exempt.
   useEffect(() => {
-    if (status !== "playing") return;
+    if (status !== "playing" || mode !== "tts") return;
     let lock: WakeLockSentinel | null = null;
     let done = false;
     navigator.wakeLock
@@ -190,7 +220,7 @@ export function ListenBar({
       document.removeEventListener("visibilitychange", onVisibility);
       lock?.release().catch(() => {});
     };
-  }, [status, clearRestartTimer]);
+  }, [status, mode, clearRestartTimer]);
 
   function speakVerse(i: number) {
     const verse = verses[i];
@@ -219,6 +249,7 @@ export function ListenBar({
       } else {
         indexRef.current = 0;
         setStatus("idle");
+        setMode(null);
         onActiveVerse(null);
       }
     };
@@ -255,28 +286,69 @@ export function ListenBar({
     }, 100);
   }
 
+  function playNarration() {
+    const a = audioRef.current;
+    if (!a) return;
+    a.playbackRate = rateRef.current;
+    a.play()
+      .then(() => {
+        setMode("audio");
+        setStatus("playing");
+        if ("mediaSession" in navigator) {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title,
+            artist: "Audio Bible",
+            album: "Glory Domain",
+          });
+        }
+      })
+      .catch(() => {
+        // Stream failed (expired key, offline, autoplay refusal) — fall back
+        // to device speech for this chapter.
+        setNarration("no");
+      });
+  }
+
   function togglePlay() {
     clearRestartTimer();
     if (status === "playing") {
-      // Native speechSynthesis.pause()/resume() is broken on iOS Safari, so
-      // pause cancels outright and resume re-speaks the remembered verse.
-      utteranceRef.current = null;
-      window.speechSynthesis.cancel();
+      if (mode === "audio") {
+        audioRef.current?.pause();
+      } else {
+        // Native speechSynthesis.pause()/resume() is broken on iOS Safari, so
+        // pause cancels outright and resume re-speaks the remembered verse.
+        utteranceRef.current = null;
+        window.speechSynthesis.cancel();
+      }
       setStatus("paused");
+      return;
+    }
+    if (mode === "audio" || (mode === null && narration === "yes")) {
+      playNarration();
       return;
     }
     utteranceRef.current = null;
     window.speechSynthesis.cancel();
+    setMode("tts");
     setStatus("playing");
     speakVerse(status === "paused" ? indexRef.current : 0);
   }
 
   function stop() {
     clearRestartTimer();
-    utteranceRef.current = null;
-    window.speechSynthesis.cancel();
+    if (mode === "audio") {
+      const a = audioRef.current;
+      if (a) {
+        a.pause();
+        a.currentTime = 0;
+      }
+    } else {
+      utteranceRef.current = null;
+      window.speechSynthesis.cancel();
+    }
     indexRef.current = 0;
     setStatus("idle");
+    setMode(null);
     onActiveVerse(null);
   }
 
@@ -284,6 +356,10 @@ export function ListenBar({
     const next = (rateIdx + 1) % RATES.length;
     setRateIdx(next);
     rateRef.current = RATES[next];
+    if (mode === "audio") {
+      if (audioRef.current) audioRef.current.playbackRate = RATES[next];
+      return;
+    }
     if (status === "playing") restartCurrent();
   }
 
@@ -295,20 +371,25 @@ export function ListenBar({
     } catch {
       // Storage may be blocked (private mode); the choice still applies now.
     }
-    if (status === "playing") restartCurrent();
+    if (status === "playing" && mode === "tts") restartCurrent();
   }
 
-  if (!supported) return null;
+  const narrated = narration === "yes";
+  if (!supported && !narrated) return null;
 
+  const usingTts = !narrated || mode === "tts";
   const hasBothGenders =
+    usingTts &&
+    supported &&
     translation !== "shona" &&
     english.some((v) => voiceGender(v) === "female") &&
     english.some((v) => voiceGender(v) === "male");
-  const activeGender =
-    voicePref ?? voiceGender(pickVoice(english, null));
+  const activeGender = voicePref ?? voiceGender(pickVoice(english, null));
   // No enhanced/natural voice on this Apple device — the robotic compact
   // default is all we have, so point the listener at the free upgrade.
   const showAppleTip =
+    usingTts &&
+    supported &&
     isApple &&
     translation !== "shona" &&
     english.length > 0 &&
@@ -322,6 +403,34 @@ export function ListenBar({
         status !== "idle" && "sticky top-14 z-20 bg-paper pb-1",
       )}
     >
+      {narrated ? (
+        <audio
+          ref={(el) => {
+            audioRef.current = el;
+            if (!el) return;
+            return () => {
+              // A media element keeps playing even after it leaves the DOM —
+              // stop it when the reader swaps chapters/translations.
+              el.pause();
+              audioRef.current = null;
+            };
+          }}
+          src={streamUrl}
+          preload="none"
+          onEnded={() => {
+            setStatus("idle");
+            setMode(null);
+          }}
+          onPause={() => {
+            // Also fired by lock-screen/notification controls.
+            if (audioRef.current && !audioRef.current.ended) {
+              setStatus((s) => (s === "playing" ? "paused" : s));
+            }
+          }}
+          onPlay={() => setStatus("playing")}
+          onError={() => setNarration("no")}
+        />
+      ) : null}
       <div className="flex items-center gap-3 rounded-xl border border-line bg-surface px-2.5 py-1">
         <button
           type="button"
@@ -359,6 +468,11 @@ export function ListenBar({
           {RATES[rateIdx]}x
         </button>
       </div>
+      {narrated ? (
+        <p className="text-xs text-faint">
+          Real narration — keeps playing with the screen off.
+        </p>
+      ) : null}
       {hasBothGenders ? (
         <div className="flex items-center gap-2 text-xs text-muted">
           <span>Voice</span>
@@ -381,7 +495,7 @@ export function ListenBar({
           </div>
         </div>
       ) : null}
-      {translation === "shona" ? (
+      {!narrated && translation === "shona" ? (
         <p className="text-xs text-faint">
           Listening works best with the KJV or WEB translations.
         </p>

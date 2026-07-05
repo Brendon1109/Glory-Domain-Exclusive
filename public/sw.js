@@ -3,7 +3,7 @@
 // - Static assets: stale-while-revalidate.
 // - Navigations: network-first with an offline fallback page.
 // - Auth + member/admin HTML: never cached (avoids leaking/staling gated data).
-const VERSION = "gd-v2";
+const VERSION = "gd-v3";
 const STATIC_CACHE = `static-${VERSION}`;
 const BIBLE_CACHE = `bible-${VERSION}`;
 const OFFLINE_URL = "/offline";
@@ -62,6 +62,11 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/api/admin-auth")
   ) {
     return; // let the network handle auth
+  }
+
+  if (url.pathname.startsWith("/api/bible/audio")) {
+    return; // streamed narration: signed URLs expire and Range requests
+    // must reach the CDN — never cache
   }
 
   if (url.pathname.startsWith("/api/bible/")) {

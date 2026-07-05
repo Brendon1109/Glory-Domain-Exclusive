@@ -144,6 +144,9 @@ export function ChapterReader({
           <ListenBar
             verses={verses}
             translation={translation}
+            bookId={bookId}
+            chapter={chapter}
+            title={`${meta.name} ${chapter}`}
             onActiveVerse={setSpeakingVerse}
           />
           <div className="space-y-3 font-display text-[1.15rem] leading-relaxed text-ink">
