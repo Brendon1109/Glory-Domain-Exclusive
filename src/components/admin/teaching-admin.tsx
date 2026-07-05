@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarPlus, Plus, Trash2, Loader2, Save } from "lucide-react";
+import { CalendarPlus, Plus, Trash2, Loader2, Save, Video } from "lucide-react";
 import {
   createTeaching,
   deleteTeaching,
@@ -10,12 +10,13 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { LocalDateTime } from "@/components/local-datetime";
 import { MediaUpload } from "./media-upload";
 import { cn } from "@/lib/utils";
+import { jitsiRoomUrl } from "@/lib/jitsi";
 import type { Teaching } from "@/db/schema";
 
 export function TeachingAdmin({ teachings }: { teachings: Teaching[] }) {
@@ -99,8 +100,8 @@ export function TeachingAdmin({ teachings }: { teachings: Teaching[] }) {
                   Audio only (best for low data)
                 </label>
                 <p className="text-xs text-stone-500">
-                  A private video room is created automatically when you add the
-                  session.
+                  A private video room is created automatically. Sessions open
+                  on Jitsi Meet in a new tab and have no time limit.
                 </p>
               </>
             ) : (
@@ -198,6 +199,27 @@ function TeachingRow({
           <Trash2 className="h-4 w-4" />
         </button>
       </div>
+
+      {teaching.kind === "live" && teaching.roomName ? (
+        <div className="mt-3">
+          <a
+            href={jitsiRoomUrl(teaching.roomName, {
+              displayName: "Pastor",
+              audioOnly: teaching.audioOnly,
+              muted: false,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ variant: "secondary" }), "w-full")}
+          >
+            <Video className="h-4 w-4" /> Start session as host
+          </a>
+          <p className="mt-1 text-xs text-stone-500">
+            Jitsi will ask you to sign in (Google) the first time — that makes
+            you the host and starts the room for everyone.
+          </p>
+        </div>
+      ) : null}
 
       {teaching.kind === "live" ? (
         <div className="mt-3">
