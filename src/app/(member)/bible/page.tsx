@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { BOOKS, type BibleBook } from "@/lib/bible-books";
+import { VerseJump } from "@/components/bible/verse-jump";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,7 @@ export default function BiblePage() {
         King James, World English &amp; Shona (New Testament). Switch
         translation freely as you read.
       </p>
+      <VerseJump />
       <BookGroup
         title="Old Testament"
         books={BOOKS.filter((b) => b.testament === "OT")}

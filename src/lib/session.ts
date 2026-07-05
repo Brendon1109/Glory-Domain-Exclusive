@@ -23,16 +23,20 @@ const baseCookieOptions = {
   path: "/",
 };
 
+// Both sessions last 30 days. ttl must be set alongside the cookie maxAge:
+// iron-session's seal expires after 14 days by default regardless of the cookie.
 const memberOptions: SessionOptions = {
   password,
   cookieName: MEMBER_COOKIE,
+  ttl: 60 * 60 * 24 * 30,
   cookieOptions: { ...baseCookieOptions, maxAge: 60 * 60 * 24 * 30 },
 };
 
 const adminOptions: SessionOptions = {
   password,
   cookieName: ADMIN_COOKIE,
-  cookieOptions: { ...baseCookieOptions, maxAge: 60 * 60 * 24 * 7 },
+  ttl: 60 * 60 * 24 * 30,
+  cookieOptions: { ...baseCookieOptions, maxAge: 60 * 60 * 24 * 30 },
 };
 
 export async function getMemberSession() {

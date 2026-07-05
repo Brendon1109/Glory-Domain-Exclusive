@@ -36,7 +36,10 @@ export async function createTeaching(formData: FormData): Promise<Result> {
     title: d.title,
     description: d.description || null,
     kind: d.kind,
-    scheduledAt: isLive ? parseScheduled(d.scheduledAt) : null,
+    // The admin form promises a blank date starts the session right away:
+    // stamp "now" so the upcoming queries (gte on scheduledAt) and the
+    // "Live now" badge treat it as a live session instead of dropping it.
+    scheduledAt: isLive ? (parseScheduled(d.scheduledAt) ?? new Date()) : null,
     roomName: isLive ? `glory-${nanoid(12)}` : null,
     recordingUrl: d.recordingUrl ? d.recordingUrl : null,
     audioOnly: d.audioOnly ?? false,

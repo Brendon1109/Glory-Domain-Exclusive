@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Loader2, Save } from "lucide-react";
+import { CalendarPlus, Plus, Trash2, Loader2, Save } from "lucide-react";
 import {
   createTeaching,
   deleteTeaching,
@@ -44,7 +44,9 @@ export function TeachingAdmin({ teachings }: { teachings: Teaching[] }) {
     <div className="space-y-6">
       <Card>
         <CardContent>
-          <h2 className="mb-3 font-semibold text-stone-900">Add a teaching</h2>
+          <h2 className="mb-3 font-semibold text-stone-900">
+            {kind === "live" ? "Schedule a teaching" : "Add a recording"}
+          </h2>
           <form ref={formRef} onSubmit={create} className="space-y-3">
             <input type="hidden" name="kind" value={kind} />
             <div className="flex rounded-lg bg-stone-100 p-1">
@@ -88,6 +90,9 @@ export function TeachingAdmin({ teachings }: { teachings: Teaching[] }) {
                 <div>
                   <Label htmlFor="t-when">Date &amp; time</Label>
                   <Input id="t-when" type="datetime-local" name="scheduledAt" />
+                  <p className="text-xs text-stone-500">
+                    Leave blank to start the session right away.
+                  </p>
                 </div>
                 <label className="flex items-center gap-2 text-sm text-stone-700">
                   <input type="checkbox" name="audioOnly" className="h-4 w-4 rounded border-stone-300" />
@@ -109,10 +114,12 @@ export function TeachingAdmin({ teachings }: { teachings: Teaching[] }) {
             <Button type="submit" disabled={pending} className="w-full">
               {pending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
+              ) : kind === "live" ? (
+                <CalendarPlus className="h-4 w-4" />
               ) : (
                 <Plus className="h-4 w-4" />
               )}
-              Add teaching
+              {kind === "live" ? "Schedule teaching" : "Add recording"}
             </Button>
           </form>
         </CardContent>

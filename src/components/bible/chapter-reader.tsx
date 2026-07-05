@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { BOOKS, getBook, bookIndex } from "@/lib/bible-books";
+import { ListenBar } from "@/components/bible/listen-bar";
 import { cn } from "@/lib/utils";
 
 type Verse = { n: number; t: string };
@@ -25,6 +26,8 @@ export function ChapterReader({
   const [state, setState] = useState<"loading" | "ok" | "unavailable" | "error">(
     "loading",
   );
+  const [flashVerse, setFlashVerse] = useState<number | null>(null);
+  const [speakingVerse, setSpeakingVerse] = useState<number | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("gd_translation");
@@ -37,6 +40,7 @@ export function ChapterReader({
     let cancelled = false;
     setState("loading");
     setVerses(null);
+    setSpeakingVerse(null);
     fetch(`/api/bible/chapter?t=${translation}&book=${bookId}&ch=${chapter}`)
       .then(async (res) => {
         if (cancelled) return;
@@ -57,6 +61,29 @@ export function ChapterReader({
       cancelled = true;
     };
   }, [translation, bookId, chapter]);
+
+  // Scroll to and flash-highlight a #v<n> deep link once verses are rendered.
+  useEffect(() => {
+    if (state !== "ok") return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    function goToHashVerse() {
+      const m = window.location.hash.match(/^#v(\d+)$/);
+      if (!m) return;
+      const el = document.getElementById(`v${m[1]}`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setFlashVerse(Number(m[1]));
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => setFlashVerse(null), 2500);
+    }
+    goToHashVerse();
+    window.addEventListener("hashchange", goToHashVerse);
+    return () => {
+      window.removeEventListener("hashchange", goToHashVerse);
+      if (timer) clearTimeout(timer);
+    };
+    // Re-run whenever a new chapter/translation finishes loading.
+  }, [state, translation, bookId, chapter]);
 
   function changeTranslation(t: string) {
     localStorage.setItem("gd_translation", t);
@@ -113,16 +140,31 @@ export function ChapterReader({
       ) : null}
 
       {state === "ok" && verses ? (
-        <div className="space-y-3 font-display text-[1.15rem] leading-relaxed text-ink">
-          {verses.map((v) => (
-            <p key={v.n}>
-              <sup className="mr-1 align-super text-xs font-bold text-accent">
-                {v.n}
-              </sup>
-              {v.t}
-            </p>
-          ))}
-        </div>
+        <>
+          <ListenBar
+            verses={verses}
+            translation={translation}
+            onActiveVerse={setSpeakingVerse}
+          />
+          <div className="space-y-3 font-display text-[1.15rem] leading-relaxed text-ink">
+            {verses.map((v) => (
+              <p
+                key={v.n}
+                id={`v${v.n}`}
+                className={cn(
+                  "scroll-mt-24 rounded-md transition-colors",
+                  (flashVerse === v.n || speakingVerse === v.n) &&
+                    "bg-accent-soft",
+                )}
+              >
+                <sup className="mr-1 align-super text-xs font-bold text-accent">
+                  {v.n}
+                </sup>
+                {v.t}
+              </p>
+            ))}
+          </div>
+        </>
       ) : null}
 
       {state === "unavailable" ? (
