@@ -30,6 +30,16 @@ export function TeachingAdmin({ teachings }: { teachings: Teaching[] }) {
     e.preventDefault();
     setError("");
     const fd = new FormData(e.currentTarget);
+    // datetime-local submits a wall-clock string with no timezone; the server
+    // runs in UTC and would read it as UTC (2h early for CAT/SAST). Convert to
+    // an absolute instant here, where the pastor's timezone is known.
+    const when = String(fd.get("scheduledAt") ?? "");
+    if (when) {
+      const local = new Date(when);
+      if (!Number.isNaN(local.getTime())) {
+        fd.set("scheduledAt", local.toISOString());
+      }
+    }
     startTransition(async () => {
       const res = await createTeaching(fd);
       if (res?.error) setError(res.error);
