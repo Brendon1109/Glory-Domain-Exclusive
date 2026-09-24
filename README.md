@@ -74,3 +74,8 @@ Members just open the app URL, enter the passcode once, and everything is in the
 - **Jitsi**: uses the free public `meet.jit.si`. For guaranteed moderation/branding later, switch the single `src/components/jitsi-room.tsx` to 8×8 JaaS.
 - **App icon**: `public/icons/icon.svg` is used for the PWA. For the crispest iOS home-screen icon, you can add PNG versions (192/512) later.
 - **Bible data** lives in `data/bible/{kjv,web}.json`; re-run `npm run bible:fetch` to refresh it.
+- **Bible serving**: `npm run bible:split` (run automatically before every dev and build) splits that data into small files under `public/bible-data`, one per chapter plus search shards, so no request reads a whole translation. The output is generated and not committed.
+
+## Moving to Cloudflare Workers
+
+The app builds for both Vercel and Cloudflare Workers. Vercel stays production until the cutover, and the steps, secrets, DNS plan and rollback are in [docs/CLOUDFLARE-MOVE.md](docs/CLOUDFLARE-MOVE.md).

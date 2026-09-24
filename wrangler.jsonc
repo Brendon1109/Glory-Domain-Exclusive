@@ -1,0 +1,37 @@
+// Cloudflare Workers config for Glory Domain. Nothing deploys from here yet:
+// Vercel stays production until the cutover in docs/CLOUDFLARE-MOVE.md.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "glory-domain",
+  // Brendon's personal Cloudflare account.
+  "account_id": "def57486f42c3f50263d4ae8edf11cd0",
+  // OpenNext's generated worker plus the daily cron, see cloudflare-worker.ts.
+  "main": "cloudflare-worker.ts",
+  "compatibility_date": "2026-09-20",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "workers_dev": true,
+  // Off because the admin area lives on this Worker, so every version would
+  // otherwise get its own unadvertised hostname to it.
+  "preview_urls": false,
+  // Neon is in Frankfurt (Vercel pinned this app to fra1). Smart Placement
+  // moves the Worker towards it once it has seen enough traffic.
+  "placement": { "mode": "smart" },
+  "observability": {
+    "logs": { "enabled": true },
+    // Bible searches travel in the query string, keep them out of the logs.
+    "redact_query_string": true
+  },
+  // Vercel Cron ran /api/push/daily at 05:00 UTC (vercel.json).
+  "triggers": { "crons": ["0 5 * * *"] },
+  // Not secrets. The R2 keys and MEDIA_PUBLIC_BASE_URL are added at cutover.
+  "vars": {
+    "MEDIA_STORAGE": "r2",
+    "MEDIA_R2_ACCOUNT_ID": "def57486f42c3f50263d4ae8edf11cd0",
+    "MEDIA_R2_BUCKET": "glory-domain-media"
+  }
+  // No routes or custom domains until the DNS cutover.
+}

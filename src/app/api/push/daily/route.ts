@@ -4,8 +4,10 @@ import { db } from "@/db";
 import { scheduledPushes } from "@/db/schema";
 import { sendToAll } from "@/lib/push";
 
-// Runs each morning (Vercel Cron) and delivers any pushes the pastor queued
-// after hours. Does NOT auto-send anything on its own.
+// Runs each morning (Vercel Cron from vercel.json, or the Worker's Cron
+// Trigger in cloudflare-worker.ts, which calls this route with the same
+// secret) and delivers any pushes the pastor queued after hours. Does NOT
+// auto-send anything on its own.
 //
 // Fails closed. It used to check the secret only when CRON_SECRET was set,
 // and it never was, so anyone could trigger a broadcast. Vercel Cron sends
