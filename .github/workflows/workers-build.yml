@@ -1,0 +1,55 @@
+# Proves the Cloudflare Workers build on Linux, where Workers Builds will run
+# it. OpenNext's bundle step fails on Windows, so this is the build of record.
+# No secrets and no deploy: the build needs no env, and the dry run only
+# bundles the Worker and reports its size.
+name: Workers build
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workers-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  workers-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    defaults:
+      run:
+        # Explicit bash turns on pipefail, so a failed dry run fails the step.
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - name: OpenNext build
+        run: npx opennextjs-cloudflare build
+      - name: Wrangler dry run
+        run: npx wrangler deploy --dry-run --outdir dist-dryrun 2>&1 | tee dryrun.log
+      - name: Bundle size
+        run: |
+          raw=0; gz=0
+          while IFS= read -r f; do
+            raw=$(( raw + $(wc -c < "$f") ))
+            gz=$(( gz + $(gzip -9 -c "$f" | wc -c) ))
+          done < <(find dist-dryrun -type f ! -name '*.map')
+          assets=$(find .open-next/assets -type f | wc -l)
+          assets_kib=$(( $(du -sb .open-next/assets | cut -f1) / 1024 ))
+          upload=$(grep -m1 "Total Upload" dryrun.log || echo "Total Upload line not found")
+          {
+            echo "### Worker bundle"
+            echo ""
+            echo "- Worker modules: $(( raw / 1024 )) KiB raw, $(( gz / 1024 )) KiB gzipped"
+            echo "- Wrangler says: ${upload}"
+            echo "- Static assets: ${assets} files, ${assets_kib} KiB"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          find dist-dryrun -type f -printf '%s\t%p\n' | sort -rn | head -15

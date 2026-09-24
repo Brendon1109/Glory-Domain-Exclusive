@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated output.
+    ".open-next/**",
+    ".wrangler/**",
+    "dist-dryrun/**",
+    "public/bible-data/**",
   ]),
   // Six findings from these two React Compiler rules predate CI (reading
   // localStorage after mount, Date.now in a render). They stay visible as
