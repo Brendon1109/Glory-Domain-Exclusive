@@ -14,8 +14,10 @@ import {
   getWorshipItems,
 } from "@/lib/queries";
 import { Card, CardContent } from "@/components/ui/card";
+import { requireAdmin } from "@/lib/session";
 
 export default async function AdminDashboard() {
+  await requireAdmin();
   const [upcoming, recorded, prayers, worship] = await Promise.all([
     getUpcomingTeachings(),
     getRecordedTeachings(),

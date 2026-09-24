@@ -1,7 +1,9 @@
 import { getWorshipItems } from "@/lib/queries";
 import { WorshipAdmin } from "@/components/admin/worship-admin";
+import { requireAdmin } from "@/lib/session";
 
 export default async function AdminWorshipPage() {
+  await requireAdmin();
   const items = await getWorshipItems();
   return (
     <div>

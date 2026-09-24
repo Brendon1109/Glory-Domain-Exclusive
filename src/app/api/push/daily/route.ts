@@ -6,9 +6,17 @@ import { sendToAll } from "@/lib/push";
 
 // Runs each morning (Vercel Cron) and delivers any pushes the pastor queued
 // after hours. Does NOT auto-send anything on its own.
+//
+// Fails closed. It used to check the secret only when CRON_SECRET was set,
+// and it never was, so anyone could trigger a broadcast. Vercel Cron sends
+// "Authorization: Bearer <CRON_SECRET>" on its own once the variable exists.
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
-  if (secret && req.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!secret) {
+    console.error("[push/daily] CRON_SECRET is not set, refusing to run.");
+    return NextResponse.json({ error: "Not configured" }, { status: 503 });
+  }
+  if (req.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const due = await db
