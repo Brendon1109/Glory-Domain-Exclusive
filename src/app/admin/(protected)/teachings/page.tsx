@@ -1,7 +1,9 @@
 import { getAllTeachings } from "@/lib/queries";
 import { TeachingAdmin } from "@/components/admin/teaching-admin";
+import { requireAdmin } from "@/lib/session";
 
 export default async function AdminTeachingsPage() {
+  await requireAdmin();
   const teachings = await getAllTeachings();
   return (
     <div>

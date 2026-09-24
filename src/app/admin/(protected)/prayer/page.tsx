@@ -1,7 +1,9 @@
 import { getPrayerRequests } from "@/lib/queries";
 import { PrayerAdmin } from "@/components/admin/prayer-admin";
+import { requireAdmin } from "@/lib/session";
 
 export default async function AdminPrayerPage() {
+  await requireAdmin();
   const requests = await getPrayerRequests();
   return (
     <div>

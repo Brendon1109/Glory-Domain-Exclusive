@@ -2,6 +2,7 @@ import "server-only";
 import type { SessionOptions } from "iron-session";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { MEMBER_COOKIE, ADMIN_COOKIE } from "./constants";
 
 // iron-session requires a password of at least 32 characters. In production
@@ -54,4 +55,15 @@ export async function isMember() {
 
 export async function isAdmin() {
   return Boolean((await getAdminSession()).admin);
+}
+
+/**
+ * The lock for every admin page. Call it as the first line of each page, not
+ * only in the layout. On an RSC request Next can render a page without
+ * running the layout above it, and the proxy only checks that a cookie with
+ * the right name exists, so a layout check alone does not protect a page's
+ * data. The layout check stays as the courtesy redirect.
+ */
+export async function requireAdmin() {
+  if (!(await isAdmin())) redirect("/admin/login");
 }

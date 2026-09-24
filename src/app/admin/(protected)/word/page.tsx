@@ -1,7 +1,9 @@
 import { getDailyWords } from "@/lib/queries";
 import { DailyWordAdmin } from "@/components/admin/daily-word-admin";
+import { requireAdmin } from "@/lib/session";
 
 export default async function AdminWordPage() {
+  await requireAdmin();
   const words = await getDailyWords(50);
   return (
     <div>
