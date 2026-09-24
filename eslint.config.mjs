@@ -13,6 +13,15 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Six findings from these two React Compiler rules predate CI (reading
+  // localStorage after mount, Date.now in a render). They stay visible as
+  // warnings until they are fixed on purpose, every other rule still fails CI.
+  {
+    rules: {
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/purity": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;

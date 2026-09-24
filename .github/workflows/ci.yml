@@ -1,0 +1,40 @@
+# Typecheck, lint and build on every pull request and on main.
+# No secrets: the build runs on placeholder values, nothing connects to the
+# database and nothing is deployed from here.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      DATABASE_URL: postgresql://ci:ci@ci.invalid/ci?sslmode=require
+      DIRECT_URL: postgresql://ci:ci@ci.invalid/ci?sslmode=require
+      SESSION_SECRET: ci-placeholder-session-secret-at-least-32-chars
+      ADMIN_PASSWORD: ci-placeholder
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
