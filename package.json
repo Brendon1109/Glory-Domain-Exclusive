@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
-    "@opennextjs/cloudflare": "1.20.6",
+    "@opennextjs/cloudflare": "1.20.13",
     "@vercel/blob": "^2.5.0",
     "aws4fetch": "^1.0.20",
     "class-variance-authority": "^0.7.1",
@@ -29,7 +29,7 @@
     "iron-session": "^8.0.4",
     "lucide-react": "^1.20.0",
     "nanoid": "^5.1.11",
-    "next": "16.3.6",
+    "next": "16.4.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwind-merge": "^3.6.0",
@@ -46,12 +46,12 @@
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
-    "eslint-config-next": "16.3.6",
+    "eslint-config-next": "16.4.3",
     "pg": "^8.21.0",
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
     "typescript": "^5",
-    "wrangler": "^4.125.0"
+    "wrangler": "^4.148.0"
   },
   "engines": {
     "node": ">=20"
